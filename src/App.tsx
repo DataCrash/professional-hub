@@ -434,7 +434,7 @@ function Frontpage() {
         </div>
         <div className="mt-6 flex flex-wrap gap-2 text-xs text-muted-foreground">
           <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1">
-            GitHub -> Frontpage -> Dashboard -> CV
+            GitHub {'->'} Frontpage {'->'} Dashboard {'->'} CV
           </span>
           <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1">
             Fluxo orientado a decisao tecnica
