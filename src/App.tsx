@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { BrowserRouter, NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import {
+  Activity,
   ArrowUpRight,
+  BarChart3,
   Briefcase,
   ChartNoAxesCombined,
   ClipboardCheck,
@@ -9,7 +11,9 @@ import {
   ExternalLink,
   Gauge,
   LayoutDashboard,
+  Lock,
   MapPin,
+  PieChart,
   ShieldCheck,
   Sparkles,
   User,
@@ -32,12 +36,11 @@ import {
   type ConsentMode,
 } from './lib/consent'
 
-const navigation = [
+const baseNavigation = [
   { to: '/', label: 'Frontpage' },
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/cv-ptbr', label: 'CV PT-BR' },
   { to: '/cv-en', label: 'CV EN' },
-  { to: '/sync-kit', label: 'Sync Kit' },
   { to: '/privacidade', label: 'Privacidade' },
 ]
 
@@ -47,14 +50,98 @@ const profileReviewTemplatePath = `${baseUrl}data/profile-sync-review-template.m
 
 const profile = {
   name: 'Alessandro Ferreira Pereira',
-  headlinePt: 'Senior .NET Engineer | Arquitetura de Solucoes | Modernizacao de Plataformas',
+  headlinePt: 'Senior .NET Engineer | Arquitetura de Soluções | Modernização de Plataformas',
   headlineEn: 'Senior .NET Engineer | Solution Architecture | Platform Modernization',
-  location: 'Sao Paulo, Brasil',
+  location: 'São Paulo, Brasil',
   company: 'DS3 (alocado na C&A)',
   github: 'https://github.com/datacrash',
   linkedin: 'https://linkedin.com/in/datacrash',
   cvPtBrDownload: `${baseUrl}cv/Senior_DotNet_Engineer_Alessandro_Pereira_BR.pdf`,
   cvEnDownload: `${baseUrl}cv/Senior_DotNet_Engineer_Alessandro_Pereira_EN.pdf`,
+}
+
+const ownerAccessStorageKey = 'hub-owner-access-v1'
+
+function hasOwnerAccess() {
+  return localStorage.getItem(ownerAccessStorageKey) === 'true'
+}
+
+const cvSummaryPtBrMarkdown = `## Resumo Executivo
+
+Engenheiro de Software Sênior com atuação em modernização de plataformas .NET, evolução de sistemas legados e melhoria contínua de qualidade arquitetural.
+
+### Destaques
+
+- +15 anos de experiência em backend enterprise
+- Foco em confiabilidade, observabilidade e performance
+- Entregas orientadas a resultado para negócio e operação
+
+### Competências-chave
+
+- Arquitetura de soluções e design de APIs
+- Modernização de aplicações .NET e integração entre sistemas
+- Práticas de qualidade: testes, revisão técnica e governança de código
+
+### Contexto de atuação
+
+Atuação em ambientes de alta criticidade, conectando visão técnica e execução para reduzir risco de entrega e aumentar previsibilidade.`
+
+const cvSummaryEnMarkdown = `## Executive Summary
+
+Senior Software Engineer focused on .NET platform modernization, backend architecture and reliable delivery in enterprise contexts.
+
+### Highlights
+
+- 15+ years of backend engineering experience
+- Strong focus on reliability, observability and maintainability
+- Delivery aligned with measurable product and operational outcomes
+
+### Core Capabilities
+
+- Solution architecture and API design
+- Legacy-to-modern .NET modernization strategies
+- Engineering quality practices: testing, code review and standards
+
+### Delivery Context
+
+Hands-on technical leadership in complex environments, balancing execution speed, quality and long-term sustainability.`
+
+function MarkdownPreview({ markdown }: Readonly<{ markdown: string }>) {
+  const blocks = markdown.split('\n\n').map((part) => part.trim()).filter(Boolean)
+
+  return (
+    <div className="markdown-preview space-y-4 text-sm text-muted-foreground">
+      {blocks.map((block, index) => {
+        if (block.startsWith('### ')) {
+          return (
+            <h4 key={`${block}-${index}`} className="text-base font-semibold text-foreground">
+              {block.replace('### ', '')}
+            </h4>
+          )
+        }
+
+        if (block.startsWith('## ')) {
+          return (
+            <h3 key={`${block}-${index}`} className="text-lg font-semibold text-foreground">
+              {block.replace('## ', '')}
+            </h3>
+          )
+        }
+
+        if (block.split('\n').every((line) => line.startsWith('- '))) {
+          return (
+            <ul key={`${block}-${index}`} className="list-disc space-y-1 pl-5">
+              {block.split('\n').map((line) => (
+                <li key={line}>{line.replace('- ', '')}</li>
+              ))}
+            </ul>
+          )
+        }
+
+        return <p key={`${block}-${index}`}>{block}</p>
+      })}
+    </div>
+  )
 }
 
 type GitHubMetrics = {
@@ -117,7 +204,7 @@ type ObservedProfileState = {
 const observedProfileStorageKey = 'profile-sync-observed-v1'
 
 function getDiffStatus(expected: string, observedValue: string) {
-  if (!observedValue.trim()) return 'nao avaliado'
+  if (!observedValue.trim()) return 'não avaliado'
   return expected.trim().toLowerCase() === observedValue.trim().toLowerCase() ? 'ok' : 'divergente'
 }
 
@@ -182,8 +269,8 @@ function buildSyncKitDiagnosticMarkdown({
 const fitRolesPt = [
   'Engenheiro de Software Senior (.NET)',
   'Desenvolvedor Backend Senior (.NET)',
-  'Engenheiro de Modernizacao de Plataformas',
-  'Arquiteto de Solucoes (hands-on)',
+  'Engenheiro de Modernização de Plataformas',
+  'Arquiteto de Soluções (hands-on)',
   'Tech Lead Backend',
 ]
 
@@ -217,8 +304,8 @@ function ConsentBanner() {
   return (
     <div className="consent-banner sticky bottom-3 z-20 mt-4 rounded-2xl border p-4 shadow-xl">
       <p className="text-sm text-muted-foreground">
-        Coletamos dados anonimos para experiencia basica. Com seu consentimento, registramos eventos
-        detalhados e origem de trafego.
+        Coletamos dados anônimos para experiência básica. Com seu consentimento, registramos eventos
+        detalhados e origem de tráfego.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button
@@ -259,7 +346,7 @@ function ConsentBanner() {
 function GlowCard({ children, className = '' }: Readonly<{ children: ReactNode; className?: string }>) {
   const ref = useRef<HTMLDivElement>(null)
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!ref.current) return
     const rect = ref.current.getBoundingClientRect()
     ref.current.style.setProperty('--gx', `${e.clientX - rect.left}px`)
@@ -271,13 +358,21 @@ function GlowCard({ children, className = '' }: Readonly<{ children: ReactNode; 
     ref.current?.style.setProperty('--gy', '-9999px')
   }, [])
 
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    element.addEventListener('mousemove', handleMouseMove)
+    element.addEventListener('mouseleave', handleMouseLeave)
+
+    return () => {
+      element.removeEventListener('mousemove', handleMouseMove)
+      element.removeEventListener('mouseleave', handleMouseLeave)
+    }
+  }, [handleMouseLeave, handleMouseMove])
+
   return (
-    <div
-      ref={ref}
-      className={`glow-card ${className}`}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div ref={ref} className={`glow-card ${className}`}>
       {children}
     </div>
   )
@@ -288,30 +383,51 @@ function ScrollReveal({ children }: Readonly<{ children: ReactNode }>) {
   const location = useLocation()
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const els = document.querySelectorAll('[data-reveal]')
-      const io = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('revealed')
-              io.unobserve(entry.target)
-            }
-          })
-        },
-        { threshold: 0.08, rootMargin: '0px 0px -30px 0px' },
-      )
-      els.forEach((el) => io.observe(el))
-      return () => io.disconnect()
-    }, 60)
+    const els = document.querySelectorAll('[data-reveal]')
+    const io = new IntersectionObserver(
+      (entries, observer) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          entry.target.classList.add('revealed')
+          observer.unobserve(entry.target)
+        }
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -30px 0px' },
+    )
 
-    return () => clearTimeout(timer)
+    els.forEach((el) => io.observe(el))
+
+    return () => io.disconnect()
   }, [location.pathname])
 
   return <>{children}</>
 }
 
-function Layout({ children }: Readonly<{ children: ReactNode }>) {  return (
+function Layout({ children }: Readonly<{ children: ReactNode }>) {
+  const [isOwner, setIsOwner] = useState(false)
+
+  useEffect(() => {
+    const syncOwnerAccess = () => {
+      setIsOwner(hasOwnerAccess())
+    }
+
+    syncOwnerAccess()
+    globalThis.addEventListener('hub-owner-access-changed', syncOwnerAccess)
+
+    return () => {
+      globalThis.removeEventListener('hub-owner-access-changed', syncOwnerAccess)
+    }
+  }, [])
+
+  const navigation = useMemo(() => {
+    const items = [...baseNavigation]
+    if (isOwner) {
+      items.splice(4, 0, { to: '/sync-kit', label: 'Sync Kit' })
+    }
+    return items
+  }, [isOwner])
+
+  return (
     <div className="hub-shell mx-auto min-h-screen w-full max-w-7xl px-4 py-6 md:px-8">
       <div className="hub-atmosphere" aria-hidden="true">
         <div className="hub-atmosphere-blob3" />
@@ -323,7 +439,7 @@ function Layout({ children }: Readonly<{ children: ReactNode }>) {  return (
               Datacrash Professional Hub
             </p>
             <h1 className="text-2xl font-semibold md:text-3xl">Professional Profile Platform</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Narrativa tecnica clara para decisao de contratacao</p>
+            <p className="mt-1 text-sm text-muted-foreground">Narrativa técnica clara para decisão de contratação</p>
           </div>
           <div className="flex flex-wrap gap-2 md:flex-nowrap">
             <Button asChild variant="outline" size="sm">
@@ -354,31 +470,31 @@ function Layout({ children }: Readonly<{ children: ReactNode }>) {  return (
         </div>
         <nav className="hub-nav-shell mt-4">
           <div className="hub-nav flex gap-2">
-          {navigation.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={() => {
-                trackClick('/nav', item.label.toLowerCase())
-              }}
-              className={({ isActive }) =>
-                [
-                  'shrink-0 whitespace-nowrap rounded-full border px-3.5 py-2 text-sm font-medium transition-all duration-300',
-                  isActive
-                    ? 'border-primary bg-primary text-primary-foreground shadow-[0_12px_28px_-18px_hsl(var(--primary))]'
-                    : 'border-border/80 bg-background/70 hover:-translate-y-0.5 hover:border-primary/60 hover:bg-secondary',
-                ].join(' ')
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
+            {navigation.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={() => {
+                  trackClick('/nav', item.label.toLowerCase())
+                }}
+                className={({ isActive }) =>
+                  [
+                    'shrink-0 whitespace-nowrap rounded-full border px-3.5 py-2 text-sm font-medium transition-all duration-300',
+                    isActive
+                      ? 'border-primary bg-primary text-primary-foreground shadow-[0_12px_28px_-18px_hsl(var(--primary))]'
+                      : 'border-border/80 bg-background/70 hover:-translate-y-0.5 hover:border-primary/60 hover:bg-secondary',
+                  ].join(' ')
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
           </div>
         </nav>
       </header>
       <main className="hub-main py-6">
-          <ScrollReveal>{children}</ScrollReveal>
-        </main>
+        <ScrollReveal>{children}</ScrollReveal>
+      </main>
       <ConsentBanner />
     </div>
   )
@@ -417,12 +533,12 @@ function Frontpage() {
               </span>
             </div>
             <h2 className="text-gradient-primary mt-4 max-w-4xl text-3xl leading-tight md:text-6xl">
-              Hub tecnico para recrutadores e liderancas de engenharia
+              Hub técnico para recrutadores e lideranças de engenharia
             </h2>
             <p className="mt-5 max-w-3xl text-muted-foreground md:text-lg">
-              Esta frontpage concentra narrativa profissional, acesso ao dashboard tecnico e curriculos em
-              dois idiomas. O objetivo e reduzir friccao na avaliacao de fit tecnico e acelerar a tomada de
-              decisao para entrevistas.
+              Esta frontpage concentra narrativa profissional, acesso ao dashboard técnico e currículos em
+              dois idiomas. O objetivo é reduzir fricção na avaliação de fit técnico e acelerar a tomada de
+              decisão para entrevistas.
             </p>
             <div className="mt-6 flex flex-wrap gap-2.5">
               <Button asChild>
@@ -462,14 +578,14 @@ function Frontpage() {
           </div>
 
           <aside className="hero-aside rounded-2xl border border-border/80 bg-background/55 p-4 md:col-span-4 md:p-5">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Sinais de prontidao</p>
-            <h3 className="mt-2 text-lg font-semibold">Avaliacao tecnica em poucos minutos</h3>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Sinais de prontidão</p>
+            <h3 className="mt-2 text-lg font-semibold">Avaliação técnica em poucos minutos</h3>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               <li className="rounded-lg border border-border/70 bg-background/75 px-3 py-2">
                 Contexto de carreira com foco em plataforma e arquitetura
               </li>
               <li className="rounded-lg border border-border/70 bg-background/75 px-3 py-2">
-                Evidencias de repositorios e stacks de atuacao
+                Evidências de repositórios e stacks de atuação
               </li>
               <li className="rounded-lg border border-border/70 bg-background/75 px-3 py-2">
                 CV PT-BR e EN com rota de navegacao direta
@@ -496,13 +612,13 @@ function Frontpage() {
             GitHub {'->'} Frontpage {'->'} Dashboard {'->'} CV
           </span>
           <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1">
-            Fluxo orientado a decisao tecnica
+            Fluxo orientado a decisão técnica
           </span>
         </div>
       </article>
       <div data-reveal data-delay="1">
       <PageCard
-        title="Foco em impacto tecnico"
+        title="Foco em impacto técnico"
         description="Arquitetura, modernizacao de plataformas e entrega de software em ambientes enterprise com baixa friccao operacional."
         icon={<Gauge className="h-5 w-5" />}
       />
@@ -576,15 +692,15 @@ function Dashboard() {
 
     if (!githubMetrics) {
       return [
-        { label: 'Repositorios publicos', value: '-', detail: 'Aguardando pipeline de dados GitHub' },
+        { label: 'Repositórios públicos', value: '-', detail: 'Aguardando pipeline de dados GitHub' },
         { label: 'Stars totais', value: '-', detail: 'Aguardando pipeline de dados GitHub' },
-        { label: 'Anos de experiencia', value: years, detail: 'Atuacao em ambientes enterprise e legado' },
+        { label: 'Anos de experiência', value: years, detail: 'Atuação em ambientes enterprise e legado' },
       ]
     }
 
     return [
       {
-        label: 'Repositorios publicos',
+        label: 'Repositórios públicos',
         value: String(githubMetrics.totals.repositories),
         detail: `Atualizado em ${new Date(githubMetrics.profile.fetchedAt).toLocaleString('pt-BR')}`,
       },
@@ -593,17 +709,32 @@ function Dashboard() {
         value: String(githubMetrics.totals.stars),
         detail: `${githubMetrics.totals.forks} forks e ${githubMetrics.totals.openIssues} issues abertas`,
       },
-      { label: 'Anos de experiencia', value: years, detail: 'Atuacao em ambientes enterprise e legado' },
+      { label: 'Anos de experiência', value: years, detail: 'Atuação em ambientes enterprise e legado' },
     ]
   }, [githubMetrics])
 
   const topLanguageCount = githubMetrics?.languages?.[0]?.count ?? 1
   const topRepoStars = Math.max(...(githubMetrics?.topRepositories?.map((repo) => repo.stars) ?? [1]))
+  const [activeChart, setActiveChart] = useState<'languages' | 'stars' | 'freshness'>('languages')
+
+  const freshnessData = useMemo(() => {
+    const repos = githubMetrics?.topRepositories ?? []
+    return repos.slice(0, 4).map((repo) => {
+      const days = Math.max(
+        1,
+        Math.round((Date.now() - new Date(repo.updatedAt).getTime()) / (1000 * 60 * 60 * 24)),
+      )
+      return {
+        name: repo.name,
+        days,
+      }
+    })
+  }, [githubMetrics])
 
   return (
     <section className="reveal-stagger space-y-4">
       <article className="hero-panel rounded-3xl border p-6 md:p-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Cabecalho Profissional</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Cabeçalho Profissional</p>
         <h2 className="mt-2 text-2xl md:text-3xl">{profile.name}</h2>
         <p className="mt-1 text-muted-foreground">{profile.headlinePt}</p>
         <div className="mt-4 flex flex-wrap gap-2 text-sm text-muted-foreground">
@@ -651,9 +782,127 @@ function Dashboard() {
       </section>
 
       <section data-reveal className="grid gap-4 md:grid-cols-2">
+        <GlowCard className="spotlight-card rounded-3xl border p-6 md:col-span-2">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Gráficos dinâmicos</p>
+              <h3 className="mt-1 text-xl font-semibold">Mesmos dados, visualizações diferentes</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                  activeChart === 'languages'
+                    ? 'border-primary bg-primary/20 text-primary'
+                    : 'border-border/80 bg-background/60 text-muted-foreground hover:border-primary/50'
+                }`}
+                onClick={() => {
+                  setActiveChart('languages')
+                }}
+              >
+                <BarChart3 className="mr-1 inline h-3.5 w-3.5" /> Linguagens
+              </button>
+              <button
+                type="button"
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                  activeChart === 'stars'
+                    ? 'border-primary bg-primary/20 text-primary'
+                    : 'border-border/80 bg-background/60 text-muted-foreground hover:border-primary/50'
+                }`}
+                onClick={() => {
+                  setActiveChart('stars')
+                }}
+              >
+                <PieChart className="mr-1 inline h-3.5 w-3.5" /> Stars
+              </button>
+              <button
+                type="button"
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                  activeChart === 'freshness'
+                    ? 'border-primary bg-primary/20 text-primary'
+                    : 'border-border/80 bg-background/60 text-muted-foreground hover:border-primary/50'
+                }`}
+                onClick={() => {
+                  setActiveChart('freshness')
+                }}
+              >
+                <Activity className="mr-1 inline h-3.5 w-3.5" /> Atualização
+              </button>
+            </div>
+          </div>
+
+          {activeChart === 'languages' && (
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              {(githubMetrics?.languages?.length ? githubMetrics.languages : [{ name: 'N/A', count: 0 }])
+                .slice(0, 6)
+                .map((language, index) => (
+                  <li
+                    key={language.name}
+                    className="rounded-xl border border-border/80 bg-background/65 px-3 py-3"
+                    style={{ animationDelay: `${index * 70}ms` }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{language.name}</span>
+                      <span className="font-semibold text-primary">{language.count}</span>
+                    </div>
+                    <div className="mt-2 h-2 rounded-full bg-secondary">
+                      <div
+                        className="neon-bar h-2 transition-[width] duration-700"
+                        style={{ width: `${Math.max((language.count / topLanguageCount) * 100, 8)}%` }}
+                      />
+                    </div>
+                  </li>
+                ))}
+            </ul>
+          )}
+
+          {activeChart === 'stars' && (
+            <div className="grid gap-3 md:grid-cols-2">
+              {(githubMetrics?.topRepositories?.length ? githubMetrics.topRepositories : [])
+                .slice(0, 4)
+                .map((repo) => (
+                  <div key={`${repo.name}-stars`} className="rounded-xl border border-border/80 bg-background/65 p-4">
+                    <p className="text-sm font-semibold">{repo.name}</p>
+                    <div className="mt-3 flex items-end gap-3">
+                      <div
+                        className="neon-bar-accent w-10 rounded-t-xl"
+                        style={{ height: `${Math.max((repo.stars / topRepoStars) * 120, 26)}px` }}
+                      />
+                      <div className="text-xs text-muted-foreground">
+                        <p>
+                          <strong className="text-foreground">{repo.stars}</strong> stars
+                        </p>
+                        <p>{repo.forks} forks</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {activeChart === 'freshness' && (
+            <ul className="space-y-3">
+              {(freshnessData.length ? freshnessData : [{ name: 'N/A', days: 0 }]).map((item) => (
+                <li key={`${item.name}-fresh`} className="rounded-xl border border-border/80 bg-background/65 p-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{item.name}</span>
+                    <span className="text-muted-foreground">{item.days} dias</span>
+                  </div>
+                  <div className="mt-2 h-2 rounded-full bg-secondary">
+                    <div
+                      className="neon-bar h-2 transition-[width] duration-700"
+                      style={{ width: `${Math.max(8, Math.min(100, 100 - item.days))}%` }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </GlowCard>
+
         <GlowCard className="spotlight-card rounded-3xl border p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Stacks por volume</p>
-          <h3 className="mt-2 text-xl font-semibold">Distribuicao por linguagem</h3>
+          <h3 className="mt-2 text-xl font-semibold">Distribuição por linguagem</h3>
           <ul className="mt-3 space-y-3 text-sm text-muted-foreground">
             {(githubMetrics?.languages?.length ? githubMetrics.languages : [{ name: 'N/A', count: 0 }])
               .slice(0, 6)
@@ -674,8 +923,8 @@ function Dashboard() {
           </ul>
         </GlowCard>
         <GlowCard className="spotlight-card rounded-3xl border p-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Top repositorios</p>
-          <h3 className="mt-2 text-xl font-semibold">Repositorios em destaque</h3>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Top repositórios</p>
+          <h3 className="mt-2 text-xl font-semibold">Repositórios em destaque</h3>
           {githubMetrics?.topRepositories?.length ? (
             <ul className="mt-3 space-y-3">
               {githubMetrics.topRepositories.slice(0, 4).map((repo) => (
@@ -694,7 +943,7 @@ function Dashboard() {
                         {repo.name}
                       </a>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        {repo.description || 'Sem descricao publica.'}
+                        {repo.description || 'Sem descrição pública.'}
                       </p>
                     </div>
                     <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -715,7 +964,7 @@ function Dashboard() {
               ))}
             </ul>
           ) : (
-            <p className="mt-2 text-sm text-muted-foreground">Aguardando dados da pipeline diaria.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Aguardando dados da pipeline diária.</p>
           )}
           <ChartNoAxesCombined className="mt-4 h-8 w-8 text-primary" />
         </GlowCard>
@@ -731,8 +980,8 @@ function CvPtBr() {
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">CV PT-BR</p>
         <h2 className="mt-2 text-3xl">Senior .NET Engineer</h2>
         <p className="mt-3 text-muted-foreground">
-          Engenheiro de Software Senior com foco em backend, modernizacao de plataformas e evolucao de
-          sistemas criticos em ambientes enterprise.
+          Engenheiro de Software Sênior com foco em backend, modernização de plataformas e evolução de
+          sistemas críticos em ambientes enterprise.
         </p>
         <div className="mt-5">
           <Button asChild>
@@ -757,6 +1006,14 @@ function CvPtBr() {
             </li>
           ))}
         </ul>
+      </article>
+
+      <article className="md:col-span-5 rounded-2xl border border-border bg-card p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Resumo em Markdown</p>
+        <h3 className="mt-2 text-2xl font-semibold">Visão geral detalhada do CV PT-BR</h3>
+        <div className="mt-4 rounded-xl border border-border/70 bg-background/55 p-4">
+          <MarkdownPreview markdown={cvSummaryPtBrMarkdown} />
+        </div>
       </article>
     </section>
   )
@@ -796,6 +1053,14 @@ function CvEn() {
           ))}
         </ul>
       </article>
+
+      <article className="md:col-span-5 rounded-2xl border border-border bg-card p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Markdown Summary</p>
+        <h3 className="mt-2 text-2xl font-semibold">Detailed CV overview (EN)</h3>
+        <div className="mt-4 rounded-xl border border-border/70 bg-background/55 p-4">
+          <MarkdownPreview markdown={cvSummaryEnMarkdown} />
+        </div>
+      </article>
     </section>
   )
 }
@@ -819,23 +1084,32 @@ function Privacy() {
         <div className="mb-3 inline-flex rounded-xl border border-border bg-background p-2 text-primary">
           <ShieldCheck className="h-5 w-5" />
         </div>
-        <h2 className="text-2xl">Privacidade e Cookies</h2>
+        <h2 className="text-2xl">Privacidade e Consentimento</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Coletamos dados anonimos para funcionamento basico. Dados detalhados de analytics e origem de
-          trafego so sao salvos com consentimento explicito.
+          Esta seção trata de dois assuntos distintos: exibição de dados públicos do perfil profissional e
+          coleta de dados de navegação do visitante. Nenhuma identificação pessoal é feita automaticamente.
         </p>
         <div className="mt-4 rounded-xl border border-border/70 bg-background/60 p-4 text-sm">
+          <p>
+            <strong>Dados do perfil (públicos):</strong> nome, headline, links e métricas de repositórios.
+          </p>
+          <p className="mt-1">
+            <strong>Dados do visitante (locais):</strong> page views, cliques e origem de tráfego, conforme consentimento.
+          </p>
           <p>
             <strong>Estado atual de consentimento:</strong> {mode}
           </p>
           <p className="mt-1">Analytics detalhado: {analytics ? 'ativo' : 'desativado'}</p>
-          <p>Origem de trafego: {traffic ? 'ativo' : 'desativado'}</p>
+          <p>Origem de tráfego: {traffic ? 'ativo' : 'desativado'}</p>
           <p className="mt-2">Eventos locais registrados: {summary.totalEvents}</p>
           <p>Page views locais: {summary.pageViews}</p>
           <p>Cliques rastreados localmente: {summary.clicks}</p>
           <p className="mt-2">
             Origem inicial capturada:{' '}
-            {summary.trafficSource ? `${summary.trafficSource.referrer} (${summary.trafficSource.utmSource})` : 'nao capturada'}
+            {summary.trafficSource ? `${summary.trafficSource.referrer} (${summary.trafficSource.utmSource})` : 'não capturada'}
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Não há autoidentificação de visitante por nome, e-mail ou conta externa sem consentimento explícito.
           </p>
         </div>
       </article>
@@ -941,6 +1215,66 @@ function Privacy() {
             </ul>
           </section>
         </div>
+      </article>
+    </section>
+  )
+}
+
+function OwnerAccessGate() {
+  const [username, setUsername] = useState('')
+  const [isOwner, setIsOwner] = useState(() => hasOwnerAccess())
+
+  if (isOwner) {
+    return <SyncKit />
+  }
+
+  return (
+    <section className="grid gap-4 md:grid-cols-2">
+      <article className="md:col-span-2 rounded-2xl border border-border bg-card p-6">
+        <div className="mb-3 inline-flex rounded-xl border border-border bg-background p-2 text-primary">
+          <Lock className="h-5 w-5" />
+        </div>
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Área restrita</p>
+        <h2 className="mt-2 text-3xl">Sync Kit visível apenas para o proprietário</h2>
+        <p className="mt-3 max-w-3xl text-muted-foreground">
+          Para reduzir exposição operacional, esta seção fica oculta para visitantes. Faça a validação com seu
+          usuário GitHub para liberar o painel localmente neste navegador.
+        </p>
+      </article>
+
+      <article className="rounded-2xl border border-border bg-card p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Validação rápida</p>
+        <label className="mt-3 block text-sm">
+          <span className="mb-1 block text-muted-foreground">Usuário GitHub</span>
+          <input
+            value={username}
+            onChange={(event) => {
+              setUsername(event.target.value)
+            }}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2"
+            placeholder="Digite datacrash"
+          />
+        </label>
+        <Button
+          className="mt-3"
+          onClick={() => {
+            if (username.trim().toLowerCase() === 'datacrash') {
+              localStorage.setItem(ownerAccessStorageKey, 'true')
+              globalThis.dispatchEvent(new Event('hub-owner-access-changed'))
+              setIsOwner(true)
+            }
+          }}
+        >
+          Liberar acesso local
+        </Button>
+      </article>
+
+      <article className="rounded-2xl border border-border bg-card p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Nota</p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Esta proteção é de visibilidade na interface (frontend). Para segurança forte, o ideal é mover o Sync
+          Kit para backend autenticado (GitHub OAuth ou acesso privado no repositório).
+        </p>
       </article>
     </section>
   )
@@ -1061,7 +1395,7 @@ function SyncKit() {
       const status = getDiffStatus(row.expected, row.observed)
       if (status === 'ok') ok += 1
       if (status === 'divergente') divergent += 1
-      if (status === 'nao avaliado') pending += 1
+      if (status === 'não avaliado') pending += 1
     })
 
     const total = comparisonRows.length
@@ -1082,7 +1416,7 @@ function SyncKit() {
 
   const actionableDiffs = useMemo(() => {
     const divergentRows = comparisonRows.filter((row) => getDiffStatus(row.expected, row.observed) === 'divergente')
-    const pendingRows = comparisonRows.filter((row) => getDiffStatus(row.expected, row.observed) === 'nao avaliado')
+    const pendingRows = comparisonRows.filter((row) => getDiffStatus(row.expected, row.observed) === 'não avaliado')
 
     return {
       divergentRows,
@@ -1134,11 +1468,11 @@ function SyncKit() {
         <div className="mb-3 inline-flex rounded-xl border border-border bg-background p-2 text-primary">
           <ClipboardCheck className="h-5 w-5" />
         </div>
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Integracao Assistida</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Integração Assistida</p>
         <h2 className="mt-2 text-3xl">Sync Kit para GitHub e LinkedIn</h2>
         <p className="mt-3 max-w-3xl text-muted-foreground">
-          Este painel organiza os dados de perfil em um formato pronto para atualizacao manual com
-          checkpoint humano. Nenhuma alteracao e submetida automaticamente em plataformas externas.
+          Este painel organiza os dados de perfil em um formato pronto para atualização manual com
+          checkpoint humano. Nenhuma alteração é submetida automaticamente em plataformas externas.
         </p>
       </article>
 
@@ -1150,13 +1484,13 @@ function SyncKit() {
               <strong>Nome:</strong> {payload.name}
             </p>
             <p>
-              <strong>Localizacao:</strong> {payload.location}
+              <strong>Localização:</strong> {payload.location}
             </p>
             <p>
               <strong>Empresa atual:</strong> {payload.currentCompany}
             </p>
             <p>
-              <strong>Checkpoint humano:</strong> {payload.notes.humanCheckpointRequired ? 'obrigatorio' : 'nao'}
+              <strong>Checkpoint humano:</strong> {payload.notes.humanCheckpointRequired ? 'obrigatório' : 'não'}
             </p>
             <p className="pt-1">
               <strong>Uso:</strong> {payload.notes.usage}
@@ -1168,11 +1502,11 @@ function SyncKit() {
       </article>
 
       <article className="rounded-2xl border border-border bg-card p-6 md:col-span-2">
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Matriz de diferenca</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Matriz de diferença</p>
         <h3 className="mt-2 text-xl font-semibold">Esperado vs observado</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Preencha os valores atualmente visiveis em GitHub e LinkedIn para validar convergencia antes
-          do checkpoint humano de publicacao.
+          Preencha os valores atualmente visíveis em GitHub e LinkedIn para validar convergência antes
+          do checkpoint humano de publicação.
         </p>
 
         <div className="mt-4 rounded-xl border border-border/70 bg-background/50 p-4">
@@ -1210,7 +1544,7 @@ function SyncKit() {
               divergentes: {readiness.divergent}
             </span>
             <span className="rounded-full border border-border/70 bg-background px-2 py-0.5 text-muted-foreground">
-              nao avaliados: {readiness.pending}
+              não avaliados: {readiness.pending}
             </span>
           </div>
 
@@ -1219,7 +1553,7 @@ function SyncKit() {
               Limpar snapshot observado
             </Button>
             <Button variant="outline" size="sm" className="ml-2" onClick={downloadDiagnosticMarkdown}>
-              Exportar diagnostico MD <Download className="ml-1 h-4 w-4" />
+              Exportar diagnóstico MD <Download className="ml-1 h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -1466,7 +1800,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/cv-ptbr" element={<CvPtBr />} />
           <Route path="/cv-en" element={<CvEn />} />
-          <Route path="/sync-kit" element={<SyncKit />} />
+          <Route path="/sync-kit" element={<OwnerAccessGate />} />
           <Route path="/privacidade" element={<Privacy />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
