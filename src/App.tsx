@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { BrowserRouter, NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import {
   ArrowUpRight,
@@ -215,7 +215,7 @@ function ConsentBanner() {
   }
 
   return (
-    <div className="sticky bottom-3 z-20 mt-4 rounded-2xl border border-border bg-card/95 p-4 shadow-xl backdrop-blur">
+    <div className="consent-banner sticky bottom-3 z-20 mt-4 rounded-2xl border p-4 shadow-xl">
       <p className="text-sm text-muted-foreground">
         Coletamos dados anonimos para experiencia basica. Com seu consentimento, registramos eventos
         detalhados e origem de trafego.
@@ -255,10 +255,67 @@ function ConsentBanner() {
   )
 }
 
-function Layout({ children }: Readonly<{ children: ReactNode }>) {
+// Mouse-tracking spotlight card
+function GlowCard({ children, className = '' }: Readonly<{ children: ReactNode; className?: string }>) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    ref.current.style.setProperty('--gx', `${e.clientX - rect.left}px`)
+    ref.current.style.setProperty('--gy', `${e.clientY - rect.top}px`)
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    ref.current?.style.setProperty('--gx', '-9999px')
+    ref.current?.style.setProperty('--gy', '-9999px')
+  }, [])
+
   return (
+    <div
+      ref={ref}
+      className={`glow-card ${className}`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {children}
+    </div>
+  )
+}
+
+// IntersectionObserver scroll reveal
+function ScrollReveal({ children }: Readonly<{ children: ReactNode }>) {
+  const location = useLocation()
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const els = document.querySelectorAll('[data-reveal]')
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('revealed')
+              io.unobserve(entry.target)
+            }
+          })
+        },
+        { threshold: 0.08, rootMargin: '0px 0px -30px 0px' },
+      )
+      els.forEach((el) => io.observe(el))
+      return () => io.disconnect()
+    }, 60)
+
+    return () => clearTimeout(timer)
+  }, [location.pathname])
+
+  return <>{children}</>
+}
+
+function Layout({ children }: Readonly<{ children: ReactNode }>) {  return (
     <div className="hub-shell mx-auto min-h-screen w-full max-w-7xl px-4 py-6 md:px-8">
-      <div className="hub-atmosphere" aria-hidden="true" />
+      <div className="hub-atmosphere" aria-hidden="true">
+        <div className="hub-atmosphere-blob3" />
+      </div>
       <header className="hub-header animate-fade-in rounded-3xl border p-4 backdrop-blur md:p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -319,7 +376,9 @@ function Layout({ children }: Readonly<{ children: ReactNode }>) {
           </div>
         </nav>
       </header>
-      <main className="hub-main py-6">{children}</main>
+      <main className="hub-main py-6">
+          <ScrollReveal>{children}</ScrollReveal>
+        </main>
       <ConsentBanner />
     </div>
   )
@@ -335,13 +394,13 @@ function PageCard({
   icon: ReactNode
 }>) {
   return (
-    <article className="spotlight-card animate-fade-in rounded-3xl border p-6 shadow-sm">
+    <GlowCard className="rounded-3xl border p-6">
       <div className="mb-4 inline-flex rounded-2xl border border-border bg-background/90 p-2.5 text-primary">
         {icon}
       </div>
       <h2 className="text-2xl font-semibold">{title}</h2>
       <p className="mt-3 text-muted-foreground">{description}</p>
-    </article>
+    </GlowCard>
   )
 }
 
@@ -357,7 +416,7 @@ function Frontpage() {
                 Posicionamento Profissional
               </span>
             </div>
-            <h2 className="mt-4 max-w-4xl text-3xl leading-tight md:text-6xl">
+            <h2 className="text-gradient-primary mt-4 max-w-4xl text-3xl leading-tight md:text-6xl">
               Hub tecnico para recrutadores e liderancas de engenharia
             </h2>
             <p className="mt-5 max-w-3xl text-muted-foreground md:text-lg">
@@ -418,15 +477,15 @@ function Frontpage() {
             </ul>
             <div className="kpi-grid mt-4 grid grid-cols-3 gap-2">
               <div className="kpi-card rounded-xl border border-border/80 bg-background/80 p-2 text-center">
-                <p className="text-lg font-semibold text-primary">15+</p>
+                <p className="text-lg font-semibold kpi-value">15+</p>
                 <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Anos</p>
               </div>
               <div className="kpi-card rounded-xl border border-border/80 bg-background/80 p-2 text-center">
-                <p className="text-lg font-semibold text-primary">.NET</p>
+                <p className="text-lg font-semibold kpi-value">.NET</p>
                 <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Core</p>
               </div>
               <div className="kpi-card rounded-xl border border-border/80 bg-background/80 p-2 text-center">
-                <p className="text-lg font-semibold text-primary">Hub</p>
+                <p className="text-lg font-semibold kpi-value">Hub</p>
                 <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Live</p>
               </div>
             </div>
@@ -441,18 +500,22 @@ function Frontpage() {
           </span>
         </div>
       </article>
+      <div data-reveal data-delay="1">
       <PageCard
         title="Foco em impacto tecnico"
         description="Arquitetura, modernizacao de plataformas e entrega de software em ambientes enterprise com baixa friccao operacional."
         icon={<Gauge className="h-5 w-5" />}
       />
+      </div>
+      <div data-reveal data-delay="2">
       <PageCard
         title="Jornada de avaliacao clara"
         description="GitHub -> Frontpage -> Dashboard -> CVs com contexto profissional e evidencias tecnicas no menor numero de cliques."
         icon={<LayoutDashboard className="h-5 w-5" />}
       />
+      </div>
 
-      <article className="evidence-strip rounded-3xl border border-border/80 bg-card/85 p-6 md:col-span-2">
+      <article data-reveal data-delay="3" className="evidence-strip rounded-3xl border p-6 md:col-span-2">
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Por que esse hub funciona</p>
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           <div className="rounded-xl border border-border/70 bg-background/70 p-3">
@@ -579,16 +642,16 @@ function Dashboard() {
 
       <section className="grid gap-4 md:grid-cols-3">
         {dashboardMetrics.map((metric) => (
-          <article key={metric.label} className="metric-card rounded-3xl border p-6">
+          <GlowCard key={metric.label} className="metric-card rounded-3xl border p-6">
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{metric.label}</p>
-            <h3 className="mt-2 text-3xl font-semibold text-primary">{metric.value}</h3>
+            <h3 className="metric-value mt-2 text-3xl font-semibold">{metric.value}</h3>
             <p className="mt-2 text-sm text-muted-foreground">{metric.detail}</p>
-          </article>
+          </GlowCard>
         ))}
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
-        <article className="spotlight-card rounded-3xl border p-6">
+      <section data-reveal className="grid gap-4 md:grid-cols-2">
+        <GlowCard className="spotlight-card rounded-3xl border p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Stacks por volume</p>
           <h3 className="mt-2 text-xl font-semibold">Distribuicao por linguagem</h3>
           <ul className="mt-3 space-y-3 text-sm text-muted-foreground">
@@ -602,15 +665,15 @@ function Dashboard() {
                   </div>
                   <div className="mt-2 h-2 rounded-full bg-secondary">
                     <div
-                      className="h-2 rounded-full bg-primary transition-[width] duration-500"
+                      className="neon-bar h-2 transition-[width] duration-500"
                       style={{ width: `${Math.max((language.count / topLanguageCount) * 100, 8)}%` }}
                     />
                   </div>
                 </li>
               ))}
           </ul>
-        </article>
-        <article className="spotlight-card rounded-3xl border p-6">
+        </GlowCard>
+        <GlowCard className="spotlight-card rounded-3xl border p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Top repositorios</p>
           <h3 className="mt-2 text-xl font-semibold">Repositorios em destaque</h3>
           {githubMetrics?.topRepositories?.length ? (
@@ -644,7 +707,7 @@ function Dashboard() {
                   </div>
                   <div className="mt-2 h-2 rounded-full bg-secondary">
                     <div
-                      className="h-2 rounded-full bg-accent transition-[width] duration-500"
+                      className="neon-bar-accent h-2 transition-[width] duration-500"
                       style={{ width: `${Math.max((repo.stars / topRepoStars) * 100, 8)}%` }}
                     />
                   </div>
@@ -655,7 +718,7 @@ function Dashboard() {
             <p className="mt-2 text-sm text-muted-foreground">Aguardando dados da pipeline diaria.</p>
           )}
           <ChartNoAxesCombined className="mt-4 h-8 w-8 text-primary" />
-        </article>
+        </GlowCard>
       </section>
     </section>
   )
