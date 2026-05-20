@@ -1320,7 +1320,7 @@ function SyncKit() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={baseUrl}>
       <RouteAnalyticsTracker />
       <Layout>
         <Routes>
