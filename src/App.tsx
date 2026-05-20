@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   MapPin,
   ShieldCheck,
+  Sparkles,
   User,
 } from 'lucide-react'
 
@@ -256,16 +257,18 @@ function ConsentBanner() {
 
 function Layout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <div className="mx-auto min-h-screen w-full max-w-6xl px-4 py-6 md:px-8">
-      <header className="animate-fade-in rounded-2xl border border-border/70 bg-card/80 p-4 backdrop-blur md:p-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="hub-shell mx-auto min-h-screen w-full max-w-7xl px-4 py-6 md:px-8">
+      <div className="hub-atmosphere" aria-hidden="true" />
+      <header className="hub-header animate-fade-in rounded-3xl border p-4 backdrop-blur md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
               Datacrash Professional Hub
             </p>
-            <h1 className="text-xl font-semibold md:text-2xl">Professional Profile Platform</h1>
+            <h1 className="text-2xl font-semibold md:text-3xl">Professional Profile Platform</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Narrativa tecnica clara para decisao de contratacao</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 md:flex-nowrap">
             <Button asChild variant="outline" size="sm">
               <a
                 href={profile.github}
@@ -292,7 +295,8 @@ function Layout({ children }: Readonly<{ children: ReactNode }>) {
             </Button>
           </div>
         </div>
-        <nav className="mt-4 flex flex-wrap gap-2">
+        <nav className="hub-nav-shell mt-4">
+          <div className="hub-nav flex gap-2">
           {navigation.map((item) => (
             <NavLink
               key={item.to}
@@ -302,19 +306,20 @@ function Layout({ children }: Readonly<{ children: ReactNode }>) {
               }}
               className={({ isActive }) =>
                 [
-                  'rounded-full border px-3 py-1.5 text-sm transition-colors',
+                  'shrink-0 whitespace-nowrap rounded-full border px-3.5 py-2 text-sm font-medium transition-all duration-300',
                   isActive
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-background/70 hover:border-primary/60 hover:bg-secondary',
+                    ? 'border-primary bg-primary text-primary-foreground shadow-[0_12px_28px_-18px_hsl(var(--primary))]'
+                    : 'border-border/80 bg-background/70 hover:-translate-y-0.5 hover:border-primary/60 hover:bg-secondary',
                 ].join(' ')
               }
             >
               {item.label}
             </NavLink>
           ))}
+          </div>
         </nav>
       </header>
-      <main className="py-6">{children}</main>
+      <main className="hub-main py-6">{children}</main>
       <ConsentBanner />
     </div>
   )
@@ -330,58 +335,110 @@ function PageCard({
   icon: ReactNode
 }>) {
   return (
-    <article className="animate-fade-in rounded-2xl border border-border/80 bg-card p-6 shadow-sm">
-      <div className="mb-4 inline-flex rounded-xl border border-border bg-background p-2 text-primary">
+    <article className="spotlight-card animate-fade-in rounded-3xl border p-6 shadow-sm">
+      <div className="mb-4 inline-flex rounded-2xl border border-border bg-background/90 p-2.5 text-primary">
         {icon}
       </div>
       <h2 className="text-2xl font-semibold">{title}</h2>
-      <p className="mt-2 text-muted-foreground">{description}</p>
+      <p className="mt-3 text-muted-foreground">{description}</p>
     </article>
   )
 }
 
 function Frontpage() {
   return (
-    <section className="grid gap-4 md:grid-cols-2">
-      <article className="animate-fade-in rounded-2xl border border-border/80 bg-card p-6 shadow-sm md:col-span-2">
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Posicionamento Profissional</p>
-        <h2 className="mt-2 text-3xl md:text-4xl">Hub tecnico para recrutadores e liderancas de engenharia</h2>
-        <p className="mt-4 max-w-3xl text-muted-foreground">
-          Esta frontpage concentra narrativa profissional, acesso ao dashboard tecnico e curriculos em
-          dois idiomas. O objetivo e reduzir friccao na avaliacao de fit tecnico e acelerar a tomada de
-          decisao para entrevistas.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <Button asChild>
-            <NavLink
-              to="/dashboard"
-              onClick={() => {
-                trackClick('/', 'cta-dashboard')
-              }}
-            >
-              Ver Dashboard
-            </NavLink>
-          </Button>
-          <Button asChild variant="outline">
-            <NavLink
-              to="/cv-ptbr"
-              onClick={() => {
-                trackClick('/', 'cta-cv-ptbr')
-              }}
-            >
-              Ler CV PT-BR
-            </NavLink>
-          </Button>
-          <Button asChild variant="outline">
-            <NavLink
-              to="/cv-en"
-              onClick={() => {
-                trackClick('/', 'cta-cv-en')
-              }}
-            >
-              Ler CV EN
-            </NavLink>
-          </Button>
+    <section className="reveal-stagger grid gap-4 md:grid-cols-2">
+      <article className="hero-panel animate-fade-in rounded-3xl border p-6 shadow-sm md:col-span-2 md:p-8">
+        <div className="hero-grid grid gap-6 md:grid-cols-12">
+          <div className="md:col-span-8">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="signal-chip inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-accent-foreground">
+                <Sparkles className="h-3.5 w-3.5" />
+                Posicionamento Profissional
+              </span>
+            </div>
+            <h2 className="mt-4 max-w-4xl text-3xl leading-tight md:text-6xl">
+              Hub tecnico para recrutadores e liderancas de engenharia
+            </h2>
+            <p className="mt-5 max-w-3xl text-muted-foreground md:text-lg">
+              Esta frontpage concentra narrativa profissional, acesso ao dashboard tecnico e curriculos em
+              dois idiomas. O objetivo e reduzir friccao na avaliacao de fit tecnico e acelerar a tomada de
+              decisao para entrevistas.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2.5">
+              <Button asChild>
+                <NavLink
+                  to="/dashboard"
+                  onClick={() => {
+                    trackClick('/', 'cta-dashboard')
+                  }}
+                  className="w-full text-center sm:w-auto"
+                >
+                  Ver Dashboard
+                </NavLink>
+              </Button>
+              <Button asChild variant="outline" className="bg-background/70">
+                <NavLink
+                  to="/cv-ptbr"
+                  onClick={() => {
+                    trackClick('/', 'cta-cv-ptbr')
+                  }}
+                  className="w-full text-center sm:w-auto"
+                >
+                  Ler CV PT-BR
+                </NavLink>
+              </Button>
+              <Button asChild variant="outline" className="bg-background/70">
+                <NavLink
+                  to="/cv-en"
+                  onClick={() => {
+                    trackClick('/', 'cta-cv-en')
+                  }}
+                  className="w-full text-center sm:w-auto"
+                >
+                  Ler CV EN
+                </NavLink>
+              </Button>
+            </div>
+          </div>
+
+          <aside className="hero-aside rounded-2xl border border-border/80 bg-background/55 p-4 md:col-span-4 md:p-5">
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Sinais de prontidao</p>
+            <h3 className="mt-2 text-lg font-semibold">Avaliacao tecnica em poucos minutos</h3>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              <li className="rounded-lg border border-border/70 bg-background/75 px-3 py-2">
+                Contexto de carreira com foco em plataforma e arquitetura
+              </li>
+              <li className="rounded-lg border border-border/70 bg-background/75 px-3 py-2">
+                Evidencias de repositorios e stacks de atuacao
+              </li>
+              <li className="rounded-lg border border-border/70 bg-background/75 px-3 py-2">
+                CV PT-BR e EN com rota de navegacao direta
+              </li>
+            </ul>
+            <div className="kpi-grid mt-4 grid grid-cols-3 gap-2">
+              <div className="kpi-card rounded-xl border border-border/80 bg-background/80 p-2 text-center">
+                <p className="text-lg font-semibold text-primary">15+</p>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Anos</p>
+              </div>
+              <div className="kpi-card rounded-xl border border-border/80 bg-background/80 p-2 text-center">
+                <p className="text-lg font-semibold text-primary">.NET</p>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Core</p>
+              </div>
+              <div className="kpi-card rounded-xl border border-border/80 bg-background/80 p-2 text-center">
+                <p className="text-lg font-semibold text-primary">Hub</p>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">Live</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+        <div className="mt-6 flex flex-wrap gap-2 text-xs text-muted-foreground">
+          <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1">
+            GitHub -> Frontpage -> Dashboard -> CV
+          </span>
+          <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1">
+            Fluxo orientado a decisao tecnica
+          </span>
         </div>
       </article>
       <PageCard
@@ -394,6 +451,24 @@ function Frontpage() {
         description="GitHub -> Frontpage -> Dashboard -> CVs com contexto profissional e evidencias tecnicas no menor numero de cliques."
         icon={<LayoutDashboard className="h-5 w-5" />}
       />
+
+      <article className="evidence-strip rounded-3xl border border-border/80 bg-card/85 p-6 md:col-span-2">
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Por que esse hub funciona</p>
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
+          <div className="rounded-xl border border-border/70 bg-background/70 p-3">
+            <h3 className="text-sm font-semibold">Narrativa objetiva</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Informacao priorizada para reduzir ruido na triagem tecnica.</p>
+          </div>
+          <div className="rounded-xl border border-border/70 bg-background/70 p-3">
+            <h3 className="text-sm font-semibold">Dados verificaveis</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Dashboard puxa metricas reais e evidencia tecnologias com clareza.</p>
+          </div>
+          <div className="rounded-xl border border-border/70 bg-background/70 p-3">
+            <h3 className="text-sm font-semibold">Navegacao curta</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Rota direta para CV, portfolio e pontos de contato profissional.</p>
+          </div>
+        </div>
+      </article>
     </section>
   )
 }
@@ -463,8 +538,8 @@ function Dashboard() {
   const topRepoStars = Math.max(...(githubMetrics?.topRepositories?.map((repo) => repo.stars) ?? [1]))
 
   return (
-    <section className="space-y-4">
-      <article className="rounded-2xl border border-border bg-card p-6">
+    <section className="reveal-stagger space-y-4">
+      <article className="hero-panel rounded-3xl border p-6 md:p-8">
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Cabecalho Profissional</p>
         <h2 className="mt-2 text-2xl md:text-3xl">{profile.name}</h2>
         <p className="mt-1 text-muted-foreground">{profile.headlinePt}</p>
@@ -504,7 +579,7 @@ function Dashboard() {
 
       <section className="grid gap-4 md:grid-cols-3">
         {dashboardMetrics.map((metric) => (
-          <article key={metric.label} className="rounded-2xl border border-border bg-card p-6">
+          <article key={metric.label} className="metric-card rounded-3xl border p-6">
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{metric.label}</p>
             <h3 className="mt-2 text-3xl font-semibold text-primary">{metric.value}</h3>
             <p className="mt-2 text-sm text-muted-foreground">{metric.detail}</p>
@@ -513,14 +588,14 @@ function Dashboard() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
-        <article className="rounded-2xl border border-border bg-card p-6">
+        <article className="spotlight-card rounded-3xl border p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Stacks por volume</p>
           <h3 className="mt-2 text-xl font-semibold">Distribuicao por linguagem</h3>
           <ul className="mt-3 space-y-3 text-sm text-muted-foreground">
             {(githubMetrics?.languages?.length ? githubMetrics.languages : [{ name: 'N/A', count: 0 }])
               .slice(0, 6)
               .map((language) => (
-                <li key={language.name} className="rounded-lg border px-3 py-3">
+                <li key={language.name} className="rounded-xl border border-border/80 bg-background/65 px-3 py-3">
                   <div className="flex items-center justify-between">
                     <span>{language.name}</span>
                     <span className="font-semibold text-primary">{language.count}</span>
@@ -535,13 +610,13 @@ function Dashboard() {
               ))}
           </ul>
         </article>
-        <article className="rounded-2xl border border-border bg-card p-6">
+        <article className="spotlight-card rounded-3xl border p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Top repositorios</p>
           <h3 className="mt-2 text-xl font-semibold">Repositorios em destaque</h3>
           {githubMetrics?.topRepositories?.length ? (
             <ul className="mt-3 space-y-3">
               {githubMetrics.topRepositories.slice(0, 4).map((repo) => (
-                <li key={repo.name} className="rounded-lg border border-border/70 bg-background/60 p-3">
+                <li key={repo.name} className="repo-card rounded-xl border border-border/70 bg-background/60 p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <a
