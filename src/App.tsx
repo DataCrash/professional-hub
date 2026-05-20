@@ -588,7 +588,7 @@ function Frontpage() {
                 Evidências de repositórios e stacks de atuação
               </li>
               <li className="rounded-lg border border-border/70 bg-background/75 px-3 py-2">
-                CV PT-BR e EN com rota de navegacao direta
+                CV PT-BR e EN com rota de navegação direta
               </li>
             </ul>
             <div className="kpi-grid mt-4 grid grid-cols-3 gap-2">
@@ -619,14 +619,14 @@ function Frontpage() {
       <div data-reveal data-delay="1">
       <PageCard
         title="Foco em impacto técnico"
-        description="Arquitetura, modernizacao de plataformas e entrega de software em ambientes enterprise com baixa friccao operacional."
+        description="Arquitetura, modernização de plataformas e entrega de software em ambientes enterprise com baixa fricção operacional."
         icon={<Gauge className="h-5 w-5" />}
       />
       </div>
       <div data-reveal data-delay="2">
       <PageCard
-        title="Jornada de avaliacao clara"
-        description="GitHub -> Frontpage -> Dashboard -> CVs com contexto profissional e evidencias tecnicas no menor numero de cliques."
+        title="Jornada de avaliação clara"
+        description="GitHub -> Frontpage -> Dashboard -> CVs com contexto profissional e evidências técnicas no menor número de cliques."
         icon={<LayoutDashboard className="h-5 w-5" />}
       />
       </div>
@@ -636,14 +636,14 @@ function Frontpage() {
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           <div className="rounded-xl border border-border/70 bg-background/70 p-3">
             <h3 className="text-sm font-semibold">Narrativa objetiva</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Informacao priorizada para reduzir ruido na triagem tecnica.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Informação priorizada para reduzir ruído na triagem técnica.</p>
           </div>
           <div className="rounded-xl border border-border/70 bg-background/70 p-3">
             <h3 className="text-sm font-semibold">Dados verificaveis</h3>
             <p className="mt-1 text-sm text-muted-foreground">Dashboard puxa metricas reais e evidencia tecnologias com clareza.</p>
           </div>
           <div className="rounded-xl border border-border/70 bg-background/70 p-3">
-            <h3 className="text-sm font-semibold">Navegacao curta</h3>
+            <h3 className="text-sm font-semibold">Navegação curta</h3>
             <p className="mt-1 text-sm text-muted-foreground">Rota direta para CV, portfolio e pontos de contato profissional.</p>
           </div>
         </div>
@@ -1330,11 +1330,11 @@ function SyncKit() {
 
   const githubBio = payload
     ? `${payload.headlineEn} | ${payload.location} | ${payload.currentCompany}`
-    : 'Carregando payload de sincronizacao...'
+    : 'Carregando payload de sincronização...'
 
   const linkedinAbout = payload
     ? `I build and modernize enterprise backend platforms with .NET, focusing on reliability, architecture quality, and measurable delivery outcomes.`
-    : 'Carregando payload de sincronizacao...'
+    : 'Carregando payload de sincronização...'
 
   const expectedGithubBio = payload
     ? `${payload.headlineEn} | ${payload.location} | ${payload.currentCompany}`
@@ -1512,7 +1512,7 @@ function SyncKit() {
         <div className="mt-4 rounded-xl border border-border/70 bg-background/50 p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold">Resumo de prontidao</p>
+              <p className="text-sm font-semibold">Resumo de prontidão</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {readiness.evaluated} de {readiness.total} campos avaliados ({readiness.completion}%)
               </p>
@@ -1560,7 +1560,7 @@ function SyncKit() {
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <section className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
-            <h4 className="text-sm font-semibold text-amber-200">Pendencias divergentes</h4>
+            <h4 className="text-sm font-semibold text-amber-200">Pendências divergentes</h4>
             {actionableDiffs.divergentRows.length ? (
               <ul className="mt-2 space-y-2 text-xs text-amber-100">
                 {actionableDiffs.divergentRows.map((row) => (
@@ -1577,7 +1577,7 @@ function SyncKit() {
           </section>
 
           <section className="rounded-xl border border-border/70 bg-background/50 p-4">
-            <h4 className="text-sm font-semibold">Pendencias nao avaliadas</h4>
+            <h4 className="text-sm font-semibold">Pendências não avaliadas</h4>
             {actionableDiffs.pendingRows.length ? (
               <ul className="mt-2 space-y-2 text-xs text-muted-foreground">
                 {actionableDiffs.pendingRows.map((row) => (
@@ -1617,7 +1617,7 @@ function SyncKit() {
                     updateObserved('githubLocation', event.target.value)
                   }}
                   className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                  placeholder="Cole a localizacao atual do GitHub"
+                  placeholder="Cole a localização atual do GitHub"
                 />
               </label>
               <label className="block">
@@ -1639,7 +1639,7 @@ function SyncKit() {
                     updateObserved('linkedinLocation', event.target.value)
                   }}
                   className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                  placeholder="Cole a localizacao atual do LinkedIn"
+                  placeholder="Cole a localização atual do LinkedIn"
                 />
               </label>
               <label className="block">
@@ -1657,7 +1657,7 @@ function SyncKit() {
           </section>
 
           <section className="rounded-xl border border-border/70 bg-background/50 p-4">
-            <h4 className="text-sm font-semibold">Resultado da comparacao</h4>
+            <h4 className="text-sm font-semibold">Resultado da comparação</h4>
             <ul className="mt-3 space-y-2 text-sm">
               {comparisonRows.map((row) => {
                 const status = getDiffStatus(row.expected, row.observed)
@@ -1695,7 +1695,7 @@ function SyncKit() {
             Confirmar links de CV PT-BR e EN funcionando
           </li>
           <li className="rounded-lg border border-border/70 bg-background/60 px-3 py-2">
-            Realizar checkpoint humano antes de salvar qualquer alteracao
+            Realizar checkpoint humano antes de salvar qualquer alteração
           </li>
         </ul>
 
@@ -1721,7 +1721,7 @@ function SyncKit() {
                 trackClick('/sync-kit', 'open-review-template')
               }}
             >
-              Abrir template de revisao
+              Abrir template de revisão
             </a>
           </Button>
         </div>
