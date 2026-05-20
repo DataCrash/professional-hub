@@ -1,0 +1,113 @@
+{
+  "profile": {
+    "username": "datacrash",
+    "profileUrl": "https://github.com/datacrash",
+    "fetchedAt": "2026-05-20T01:11:53.716Z"
+  },
+  "totals": {
+    "repositories": 14,
+    "stars": 2,
+    "forks": 0,
+    "openIssues": 0
+  },
+  "languages": [
+    {
+      "name": "Other",
+      "count": 6
+    },
+    {
+      "name": "TypeScript",
+      "count": 2
+    },
+    {
+      "name": "JavaScript",
+      "count": 2
+    },
+    {
+      "name": "C#",
+      "count": 2
+    },
+    {
+      "name": "Dart",
+      "count": 1
+    },
+    {
+      "name": "CSS",
+      "count": 1
+    }
+  ],
+  "topRepositories": [
+    {
+      "name": "BoilerPlate-AI",
+      "description": null,
+      "url": "https://github.com/DataCrash/BoilerPlate-AI",
+      "stars": 1,
+      "forks": 0,
+      "language": "JavaScript",
+      "updatedAt": "2026-05-19T02:03:47Z"
+    },
+    {
+      "name": "AppFlow",
+      "description": null,
+      "url": "https://github.com/DataCrash/AppFlow",
+      "stars": 1,
+      "forks": 0,
+      "language": "Dart",
+      "updatedAt": "2021-12-29T05:32:19Z"
+    },
+    {
+      "name": "Scout-Geolocations",
+      "description": null,
+      "url": "https://github.com/DataCrash/Scout-Geolocations",
+      "stars": 0,
+      "forks": 0,
+      "language": "TypeScript",
+      "updatedAt": "2026-05-19T20:18:45Z"
+    },
+    {
+      "name": "GitHub-Dashboard",
+      "description": "Dashboard profissional para overview de conta e repositórios GitHub.",
+      "url": "https://github.com/DataCrash/GitHub-Dashboard",
+      "stars": 0,
+      "forks": 0,
+      "language": "JavaScript",
+      "updatedAt": "2026-05-19T15:44:14Z"
+    },
+    {
+      "name": "DesafioCarglass",
+      "description": null,
+      "url": "https://github.com/DataCrash/DesafioCarglass",
+      "stars": 0,
+      "forks": 0,
+      "language": "C#",
+      "updatedAt": "2025-01-07T01:44:03Z"
+    },
+    {
+      "name": "convit3-digital",
+      "description": "Sistema de Eventos e Convites (Formação.DEV - Cod3r)",
+      "url": "https://github.com/DataCrash/convit3-digital",
+      "stars": 0,
+      "forks": 0,
+      "language": "TypeScript",
+      "updatedAt": "2024-11-29T02:00:28Z"
+    },
+    {
+      "name": "WeatherApp",
+      "description": "[Estudo] Sistema de Previsão do Tempo, consumindo a API da OpenWeatherMap.org",
+      "url": "https://github.com/DataCrash/WeatherApp",
+      "stars": 0,
+      "forks": 0,
+      "language": "Other",
+      "updatedAt": "2023-09-09T10:47:27Z"
+    },
+    {
+      "name": "CondoTech",
+      "description": "Sistema de Gestão de Condomínios",
+      "url": "https://github.com/DataCrash/CondoTech",
+      "stars": 0,
+      "forks": 0,
+      "language": "Other",
+      "updatedAt": "2023-08-31T22:39:40Z"
+    }
+  ]
+}

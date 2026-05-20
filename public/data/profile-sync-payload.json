@@ -1,0 +1,33 @@
+{
+  "name": "Alessandro Ferreira Pereira",
+  "headlinePt": "Senior .NET Engineer | Arquitetura de Solucoes | Modernizacao de Plataformas",
+  "headlineEn": "Senior .NET Engineer | Solution Architecture | Platform Modernization",
+  "location": "Sao Paulo, Brasil",
+  "currentCompany": "DS3 (alocado na C&A)",
+  "githubUrl": "https://github.com/datacrash",
+  "linkedinUrl": "https://linkedin.com/in/datacrash",
+  "cvDownloads": {
+    "ptBr": "cv/Senior_DotNet_Engineer_Alessandro_Pereira_BR.pdf",
+    "en": "cv/Senior_DotNet_Engineer_Alessandro_Pereira_EN.pdf"
+  },
+  "targetRoles": {
+    "ptBr": [
+      "Engenheiro de Software Senior (.NET)",
+      "Desenvolvedor Backend Senior (.NET)",
+      "Engenheiro de Modernizacao de Plataformas",
+      "Arquiteto de Solucoes (hands-on)",
+      "Tech Lead Backend"
+    ],
+    "en": [
+      "Senior .NET Software Engineer",
+      "Senior Backend Engineer (.NET)",
+      "Platform Modernization Engineer",
+      "Solutions Architect (hands-on)",
+      "Backend Tech Lead"
+    ]
+  },
+  "notes": {
+    "usage": "Payload base para automacao assistida e checkpoints humanos de sincronizacao de perfil.",
+    "humanCheckpointRequired": true
+  }
+}
