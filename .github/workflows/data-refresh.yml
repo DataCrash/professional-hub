@@ -17,10 +17,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22.13.0
           cache: npm
@@ -35,7 +35,7 @@ jobs:
         run: npm run data:refresh
 
       - name: Commit refreshed metrics
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7.1.0
         with:
           commit_message: 'chore(data): refresh github metrics'
           file_pattern: public/data/github-metrics.json
