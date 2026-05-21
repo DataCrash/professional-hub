@@ -2,10 +2,10 @@
   "profile": {
     "username": "datacrash",
     "profileUrl": "https://github.com/datacrash",
-    "fetchedAt": "2026-05-20T01:11:53.716Z"
+    "fetchedAt": "2026-05-21T06:17:36.082Z"
   },
   "totals": {
-    "repositories": 14,
+    "repositories": 17,
     "stars": 2,
     "forks": 0,
     "openIssues": 0
@@ -13,10 +13,14 @@
   "languages": [
     {
       "name": "Other",
-      "count": 6
+      "count": 7
     },
     {
       "name": "TypeScript",
+      "count": 3
+    },
+    {
+      "name": "CSS",
       "count": 2
     },
     {
@@ -29,10 +33,6 @@
     },
     {
       "name": "Dart",
-      "count": 1
-    },
-    {
-      "name": "CSS",
       "count": 1
     }
   ],
@@ -54,6 +54,33 @@
       "forks": 0,
       "language": "Dart",
       "updatedAt": "2021-12-29T05:32:19Z"
+    },
+    {
+      "name": "datacrash.github.io",
+      "description": "Root landing site for the DataCrash professional presence.",
+      "url": "https://github.com/DataCrash/datacrash.github.io",
+      "stars": 0,
+      "forks": 0,
+      "language": "CSS",
+      "updatedAt": "2026-05-21T01:26:28Z"
+    },
+    {
+      "name": "datacrash",
+      "description": "Profile repository for the DataCrash GitHub account.",
+      "url": "https://github.com/DataCrash/datacrash",
+      "stars": 0,
+      "forks": 0,
+      "language": "Other",
+      "updatedAt": "2026-05-20T23:32:10Z"
+    },
+    {
+      "name": "professional-hub",
+      "description": null,
+      "url": "https://github.com/DataCrash/professional-hub",
+      "stars": 0,
+      "forks": 0,
+      "language": "TypeScript",
+      "updatedAt": "2026-05-20T18:35:46Z"
     },
     {
       "name": "Scout-Geolocations",
@@ -81,33 +108,6 @@
       "forks": 0,
       "language": "C#",
       "updatedAt": "2025-01-07T01:44:03Z"
-    },
-    {
-      "name": "convit3-digital",
-      "description": "Sistema de Eventos e Convites (Formação.DEV - Cod3r)",
-      "url": "https://github.com/DataCrash/convit3-digital",
-      "stars": 0,
-      "forks": 0,
-      "language": "TypeScript",
-      "updatedAt": "2024-11-29T02:00:28Z"
-    },
-    {
-      "name": "WeatherApp",
-      "description": "[Estudo] Sistema de Previsão do Tempo, consumindo a API da OpenWeatherMap.org",
-      "url": "https://github.com/DataCrash/WeatherApp",
-      "stars": 0,
-      "forks": 0,
-      "language": "Other",
-      "updatedAt": "2023-09-09T10:47:27Z"
-    },
-    {
-      "name": "CondoTech",
-      "description": "Sistema de Gestão de Condomínios",
-      "url": "https://github.com/DataCrash/CondoTech",
-      "stars": 0,
-      "forks": 0,
-      "language": "Other",
-      "updatedAt": "2023-08-31T22:39:40Z"
     }
   ]
 }
