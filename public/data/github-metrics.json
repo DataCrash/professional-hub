@@ -2,7 +2,7 @@
   "profile": {
     "username": "datacrash",
     "profileUrl": "https://github.com/datacrash",
-    "fetchedAt": "2026-05-21T06:17:36.082Z"
+    "fetchedAt": "2026-05-22T06:13:22.462Z"
   },
   "totals": {
     "repositories": 17,
@@ -17,11 +17,7 @@
     },
     {
       "name": "TypeScript",
-      "count": 3
-    },
-    {
-      "name": "CSS",
-      "count": 2
+      "count": 4
     },
     {
       "name": "JavaScript",
@@ -33,6 +29,10 @@
     },
     {
       "name": "Dart",
+      "count": 1
+    },
+    {
+      "name": "CSS",
       "count": 1
     }
   ],
@@ -61,26 +61,8 @@
       "url": "https://github.com/DataCrash/datacrash.github.io",
       "stars": 0,
       "forks": 0,
-      "language": "CSS",
-      "updatedAt": "2026-05-21T01:26:28Z"
-    },
-    {
-      "name": "datacrash",
-      "description": "Profile repository for the DataCrash GitHub account.",
-      "url": "https://github.com/DataCrash/datacrash",
-      "stars": 0,
-      "forks": 0,
-      "language": "Other",
-      "updatedAt": "2026-05-20T23:32:10Z"
-    },
-    {
-      "name": "professional-hub",
-      "description": null,
-      "url": "https://github.com/DataCrash/professional-hub",
-      "stars": 0,
-      "forks": 0,
       "language": "TypeScript",
-      "updatedAt": "2026-05-20T18:35:46Z"
+      "updatedAt": "2026-05-21T19:45:11Z"
     },
     {
       "name": "Scout-Geolocations",
@@ -89,7 +71,25 @@
       "stars": 0,
       "forks": 0,
       "language": "TypeScript",
-      "updatedAt": "2026-05-19T20:18:45Z"
+      "updatedAt": "2026-05-21T15:08:18Z"
+    },
+    {
+      "name": "datacrash",
+      "description": "Profile repository for the DataCrash GitHub account.",
+      "url": "https://github.com/DataCrash/datacrash",
+      "stars": 0,
+      "forks": 0,
+      "language": "Other",
+      "updatedAt": "2026-05-21T14:44:11Z"
+    },
+    {
+      "name": "professional-hub",
+      "description": null,
+      "url": "https://github.com/DataCrash/professional-hub",
+      "stars": 0,
+      "forks": 0,
+      "language": "TypeScript",
+      "updatedAt": "2026-05-21T14:14:44Z"
     },
     {
       "name": "GitHub-Dashboard",
