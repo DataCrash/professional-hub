@@ -551,7 +551,7 @@ function useWaterMotion() {
 
       rippleIndexRef.current += 1;
 
-      const size = strong ? 260 + energy * 140 : 200 + energy * 90;
+      const size = strong ? 980 + energy * 640 : 760 + energy * 420;
       ripple.style.left = `${clientX}px`;
       ripple.style.top = `${clientY}px`;
       ripple.style.setProperty("--ripple-size", `${size.toFixed(0)}px`);
@@ -561,21 +561,26 @@ function useWaterMotion() {
       const animation = ripple.animate(
         [
           {
-            opacity: strong ? 0.34 : 0.24,
-            transform: "translate(-50%, -50%) scale(0.28)",
+            opacity: strong ? 0.52 : 0.36,
+            transform: "translate(-50%, -50%) scale(0.12)",
           },
           {
-            offset: 0.62,
-            opacity: strong ? 0.15 : 0.1,
-            transform: "translate(-50%, -50%) scale(0.98)",
+            offset: 0.44,
+            opacity: strong ? 0.34 : 0.22,
+            transform: "translate(-50%, -50%) scale(0.9)",
+          },
+          {
+            offset: 0.76,
+            opacity: strong ? 0.16 : 0.1,
+            transform: "translate(-50%, -50%) scale(1.34)",
           },
           {
             opacity: 0,
-            transform: "translate(-50%, -50%) scale(1.42)",
+            transform: "translate(-50%, -50%) scale(1.84)",
           },
         ],
         {
-          duration: strong ? 1700 : 1320,
+          duration: strong ? 2900 : 2300,
           easing: "cubic-bezier(0.16, 1, 0.3, 1)",
           fill: "both",
         },
@@ -653,7 +658,7 @@ function useWaterMotion() {
       });
 
       const now = globalThis.performance.now();
-      const rippleCadence = strong ? 0 : 180;
+      const rippleCadence = strong ? 0 : 280;
 
       if (now - lastRippleTriggerRef.current >= rippleCadence) {
         lastRippleTriggerRef.current = now;
