@@ -487,6 +487,8 @@ function ScrollReveal({ children }: Readonly<{ children: ReactNode }>) {
 
 const waterReactiveSelector =
   ".hub-header, .hero-panel, .glow-card, .spotlight-card, .metric-card, .repo-card, .kpi-card";
+const windCardSelector =
+  ".glow-card, .spotlight-card, .metric-card, .repo-card, .kpi-card, .hero-aside";
 
 function useWaterMotion() {
   const shellRef = useRef<HTMLDivElement | null>(null);
@@ -494,9 +496,11 @@ function useWaterMotion() {
   const rippleIndexRef = useRef(0);
   const reactiveAnimationsRef = useRef(new Map<HTMLElement, Animation>());
   const rippleAnimationsRef = useRef(new Map<HTMLElement, Animation>());
+  const windCardAnimationsRef = useRef(new Map<HTMLElement, Animation>());
   const reducedMotionRef = useRef(false);
   const lastMotionTriggerRef = useRef(0);
   const lastRippleTriggerRef = useRef(0);
+  const lastWindCardTriggerRef = useRef(0);
 
   useEffect(() => {
     const mediaQuery = globalThis.matchMedia?.(
@@ -518,6 +522,7 @@ function useWaterMotion() {
       mediaQuery.removeEventListener?.("change", syncPreference);
       reactiveAnimationsRef.current.forEach((animation) => animation.cancel());
       rippleAnimationsRef.current.forEach((animation) => animation.cancel());
+      windCardAnimationsRef.current.forEach((animation) => animation.cancel());
     };
   }, []);
 
@@ -658,6 +663,44 @@ function useWaterMotion() {
       });
 
       const now = globalThis.performance.now();
+
+      if (strong || now - lastWindCardTriggerRef.current >= 240) {
+        lastWindCardTriggerRef.current = now;
+
+        const windCards = shell.querySelectorAll<HTMLElement>(windCardSelector);
+
+        windCards.forEach((element, index) => {
+          windCardAnimationsRef.current.get(element)?.cancel();
+
+          const damping = Math.max(0.54, 1 - index * 0.04);
+          const swayX = normalizedX * (10 + energy * 8) * damping;
+          const swayY = normalizedY * (4 + energy * 3) * damping;
+          const swayTilt = normalizedX * (1.8 + energy * 1.2) * damping;
+
+          const animation = element.animate(
+            [
+              { transform: "translate3d(0, 0, 0) rotate(0deg)" },
+              {
+                offset: 0.34,
+                transform: `translate3d(${swayX.toFixed(2)}px, ${(-Math.abs(swayY)).toFixed(2)}px, 0) rotate(${swayTilt.toFixed(2)}deg)`,
+              },
+              {
+                offset: 0.69,
+                transform: `translate3d(${(-swayX * 0.58).toFixed(2)}px, ${(Math.abs(swayY) * 0.38).toFixed(2)}px, 0) rotate(${(-swayTilt * 0.6).toFixed(2)}deg)`,
+              },
+              { transform: "translate3d(0, 0, 0) rotate(0deg)" },
+            ],
+            {
+              duration: 980 + index * 18 + energy * 200,
+              easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+              fill: "both",
+            },
+          );
+
+          windCardAnimationsRef.current.set(element, animation);
+        });
+      }
+
       const rippleCadence = strong ? 0 : 224;
 
       if (now - lastRippleTriggerRef.current >= rippleCadence) {
