@@ -658,7 +658,7 @@ function useWaterMotion() {
       });
 
       const now = globalThis.performance.now();
-      const rippleCadence = strong ? 0 : 280;
+      const rippleCadence = strong ? 0 : 224;
 
       if (now - lastRippleTriggerRef.current >= rippleCadence) {
         lastRippleTriggerRef.current = now;
@@ -675,7 +675,7 @@ function useWaterMotion() {
 
       const now = globalThis.performance.now();
 
-      if (now - lastMotionTriggerRef.current < 120) {
+      if (now - lastMotionTriggerRef.current < 96) {
         return;
       }
 
