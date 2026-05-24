@@ -192,6 +192,9 @@
   .hub-shell {
     position: relative;
     isolation: isolate;
+    --water-drift-x: 0px;
+    --water-drift-y: 0px;
+    --water-energy: 0;
   }
 
   .hub-atmosphere {
@@ -200,6 +203,12 @@
     pointer-events: none;
     z-index: -1;
     overflow: hidden;
+    transform: translate3d(
+      calc(var(--water-drift-x) * 0.12),
+      calc(var(--water-drift-y) * 0.1),
+      0
+    );
+    transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .hub-atmosphere::before {
@@ -265,6 +274,17 @@
     z-index: 40;
   }
 
+  .hub-header,
+  .hero-panel,
+  .glow-card,
+  .spotlight-card,
+  .metric-card,
+  .repo-card,
+  .kpi-card {
+    transform-origin: center center;
+    will-change: transform;
+  }
+
   .hub-nav-shell {
     border-top: 1px solid hsl(var(--border) / 0.48);
     margin-top: 1rem;
@@ -289,6 +309,44 @@
 
   .hub-main {
     position: relative;
+  }
+
+  .water-ripple {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--ripple-size, 220px);
+    height: var(--ripple-size, 220px);
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.28);
+    mix-blend-mode: screen;
+  }
+
+  .water-ripple::before,
+  .water-ripple::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .water-ripple::before {
+    border: 1px solid hsl(var(--primary) / 0.28);
+    box-shadow:
+      0 0 0 1px hsl(var(--primary) / 0.08),
+      inset 0 0 36px hsl(var(--primary) / 0.12);
+    background: radial-gradient(
+      circle,
+      hsl(var(--primary) / 0.15) 0%,
+      transparent 60%
+    );
+  }
+
+  .water-ripple::after {
+    inset: 18%;
+    border: 1px solid hsl(var(--foreground) / 0.12);
   }
 
   .hero-panel {

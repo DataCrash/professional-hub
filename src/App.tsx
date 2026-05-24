@@ -19,10 +19,12 @@ import {
 import {
   useCallback,
   useEffect,
+  useEffectEvent,
   useMemo,
   useRef,
   useState,
   type ReactNode,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
 import {
   BrowserRouter,
@@ -483,6 +485,236 @@ function ScrollReveal({ children }: Readonly<{ children: ReactNode }>) {
   return <>{children}</>;
 }
 
+const waterReactiveSelector =
+  ".hub-header, .hero-panel, .glow-card, .spotlight-card, .metric-card, .repo-card, .kpi-card";
+
+function useWaterMotion() {
+  const shellRef = useRef<HTMLDivElement | null>(null);
+  const rippleRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const rippleIndexRef = useRef(0);
+  const reactiveAnimationsRef = useRef(new Map<HTMLElement, Animation>());
+  const rippleAnimationsRef = useRef(new Map<HTMLElement, Animation>());
+  const reducedMotionRef = useRef(false);
+  const lastMotionTriggerRef = useRef(0);
+  const lastRippleTriggerRef = useRef(0);
+
+  useEffect(() => {
+    const mediaQuery = globalThis.matchMedia?.(
+      "(prefers-reduced-motion: reduce)",
+    );
+
+    if (!mediaQuery) {
+      return () => undefined;
+    }
+
+    const syncPreference = () => {
+      reducedMotionRef.current = mediaQuery.matches;
+    };
+
+    syncPreference();
+    mediaQuery.addEventListener?.("change", syncPreference);
+
+    return () => {
+      mediaQuery.removeEventListener?.("change", syncPreference);
+      reactiveAnimationsRef.current.forEach((animation) => animation.cancel());
+      rippleAnimationsRef.current.forEach((animation) => animation.cancel());
+    };
+  }, []);
+
+  const setRippleRef = useCallback(
+    (index: number) => (node: HTMLSpanElement | null) => {
+      rippleRefs.current[index] = node;
+    },
+    [],
+  );
+
+  const settleWater = useEffectEvent(() => {
+    const shell = shellRef.current;
+
+    if (!shell) {
+      return;
+    }
+
+    shell.style.setProperty("--water-drift-x", "0px");
+    shell.style.setProperty("--water-drift-y", "0px");
+    shell.style.setProperty("--water-energy", "0");
+  });
+
+  const triggerRipple = useEffectEvent(
+    (clientX: number, clientY: number, energy: number, strong: boolean) => {
+      const ripple =
+        rippleRefs.current[rippleIndexRef.current % rippleRefs.current.length];
+
+      if (!ripple) {
+        return;
+      }
+
+      rippleIndexRef.current += 1;
+
+      const size = strong ? 260 + energy * 140 : 200 + energy * 90;
+      ripple.style.left = `${clientX}px`;
+      ripple.style.top = `${clientY}px`;
+      ripple.style.setProperty("--ripple-size", `${size.toFixed(0)}px`);
+
+      rippleAnimationsRef.current.get(ripple)?.cancel();
+
+      const animation = ripple.animate(
+        [
+          {
+            opacity: strong ? 0.34 : 0.24,
+            transform: "translate(-50%, -50%) scale(0.28)",
+          },
+          {
+            offset: 0.62,
+            opacity: strong ? 0.15 : 0.1,
+            transform: "translate(-50%, -50%) scale(0.98)",
+          },
+          {
+            opacity: 0,
+            transform: "translate(-50%, -50%) scale(1.42)",
+          },
+        ],
+        {
+          duration: strong ? 1700 : 1320,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+          fill: "both",
+        },
+      );
+
+      rippleAnimationsRef.current.set(ripple, animation);
+    },
+  );
+
+  const animateWater = useEffectEvent(
+    (
+      clientX: number,
+      clientY: number,
+      movementX: number,
+      movementY: number,
+      strong: boolean,
+    ) => {
+      const shell = shellRef.current;
+
+      if (!shell || reducedMotionRef.current) {
+        return;
+      }
+
+      const rect = shell.getBoundingClientRect();
+      const normalizedX = (clientX - rect.left) / rect.width - 0.5;
+      const normalizedY = (clientY - rect.top) / rect.height - 0.5;
+      const energy = Math.min(
+        1,
+        Math.hypot(normalizedX, normalizedY) * 1.45 +
+          (Math.abs(movementX) + Math.abs(movementY)) / (strong ? 18 : 30),
+      );
+
+      shell.style.setProperty(
+        "--water-drift-x",
+        `${(normalizedX * (16 + energy * 8)).toFixed(2)}px`,
+      );
+      shell.style.setProperty(
+        "--water-drift-y",
+        `${(normalizedY * (10 + energy * 7)).toFixed(2)}px`,
+      );
+      shell.style.setProperty("--water-energy", energy.toFixed(3));
+
+      const reactiveElements = shell.querySelectorAll<HTMLElement>(
+        waterReactiveSelector,
+      );
+
+      reactiveElements.forEach((element, index) => {
+        reactiveAnimationsRef.current.get(element)?.cancel();
+
+        const damping = Math.max(0.4, 1 - index * 0.05);
+        const driftX = normalizedX * (8 + energy * 8) * damping;
+        const bobY = (4 + energy * (strong ? 10 : 7)) * damping;
+        const roll = normalizedX * (1.3 + energy * 1.1) * damping;
+        const animation = element.animate(
+          [
+            { transform: "translate3d(0, 0, 0) rotate(0deg)" },
+            {
+              offset: 0.32,
+              transform: `translate3d(${driftX.toFixed(2)}px, ${(-bobY).toFixed(2)}px, 0) rotate(${roll.toFixed(2)}deg)`,
+            },
+            {
+              offset: 0.68,
+              transform: `translate3d(${(-driftX * 0.58).toFixed(2)}px, ${(bobY * 0.32).toFixed(2)}px, 0) rotate(${(-roll * 0.54).toFixed(2)}deg)`,
+            },
+            { transform: "translate3d(0, 0, 0) rotate(0deg)" },
+          ],
+          {
+            duration: (strong ? 1750 : 1450) + index * 24 + energy * 280,
+            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+            fill: "both",
+          },
+        );
+
+        reactiveAnimationsRef.current.set(element, animation);
+      });
+
+      const now = globalThis.performance.now();
+      const rippleCadence = strong ? 0 : 180;
+
+      if (now - lastRippleTriggerRef.current >= rippleCadence) {
+        lastRippleTriggerRef.current = now;
+        triggerRipple(clientX, clientY, energy, strong);
+      }
+    },
+  );
+
+  const handlePointerMove = useEffectEvent(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (event.pointerType === "touch") {
+        return;
+      }
+
+      const now = globalThis.performance.now();
+
+      if (now - lastMotionTriggerRef.current < 120) {
+        return;
+      }
+
+      lastMotionTriggerRef.current = now;
+
+      animateWater(
+        event.clientX,
+        event.clientY,
+        event.movementX,
+        event.movementY,
+        false,
+      );
+    },
+  );
+
+  const handlePointerDown = useEffectEvent(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (event.pointerType === "touch") {
+        return;
+      }
+
+      animateWater(
+        event.clientX,
+        event.clientY,
+        event.movementX,
+        event.movementY,
+        true,
+      );
+    },
+  );
+
+  const handlePointerLeave = useEffectEvent(() => {
+    settleWater();
+  });
+
+  return {
+    handlePointerDown,
+    handlePointerLeave,
+    handlePointerMove,
+    setRippleRef,
+    shellRef,
+  };
+}
+
 function Layout({
   children,
   locale,
@@ -493,6 +725,13 @@ function Layout({
   onLocaleChange: (value: Locale) => void;
 }>) {
   const [isOwner, setIsOwner] = useState(false);
+  const {
+    handlePointerDown,
+    handlePointerLeave,
+    handlePointerMove,
+    setRippleRef,
+    shellRef,
+  } = useWaterMotion();
 
   useEffect(() => {
     const syncOwnerAccess = () => {
@@ -519,10 +758,18 @@ function Layout({
   }, [isOwner, locale]);
 
   return (
-    <div className="hub-shell mx-auto min-h-screen w-full max-w-7xl px-4 py-6 md:px-8">
+    <div
+      ref={shellRef}
+      className="hub-shell mx-auto min-h-screen w-full max-w-7xl px-4 py-6 md:px-8"
+      onPointerDown={handlePointerDown}
+      onPointerLeave={handlePointerLeave}
+      onPointerMove={handlePointerMove}
+    >
       <div className="hub-atmosphere" aria-hidden="true">
         <div className="signal-field" />
         <div className="hub-atmosphere-blob3" />
+        <span ref={setRippleRef(0)} className="water-ripple water-ripple-a" />
+        <span ref={setRippleRef(1)} className="water-ripple water-ripple-b" />
       </div>
       <header className="hub-header animate-fade-in rounded-3xl border p-4 backdrop-blur md:p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
