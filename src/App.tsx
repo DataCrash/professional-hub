@@ -19,7 +19,6 @@ import {
 import {
   useCallback,
   useEffect,
-  useEffectEvent,
   useMemo,
   useRef,
   useState,
@@ -507,10 +506,11 @@ function useWaterMotion() {
 
     syncPreference();
     mediaQuery.addEventListener?.("change", syncPreference);
+    const rippleAnimations = rippleAnimationsRef.current;
 
     return () => {
       mediaQuery.removeEventListener?.("change", syncPreference);
-      rippleAnimationsRef.current.forEach((animation) => animation.cancel());
+      rippleAnimations.forEach((animation) => animation.cancel());
     };
   }, []);
 
@@ -521,11 +521,11 @@ function useWaterMotion() {
     [],
   );
 
-  const settleWater = useEffectEvent(() => {
+  const settleWater = useCallback(() => {
     lastRippleTriggerRef.current = 0;
-  });
+  }, []);
 
-  const triggerRipple = useEffectEvent(
+  const triggerRipple = useCallback(
     (clientX: number, clientY: number, energy: number, strong: boolean) => {
       const ripple =
         rippleRefs.current[rippleIndexRef.current % rippleRefs.current.length];
@@ -573,9 +573,10 @@ function useWaterMotion() {
 
       rippleAnimationsRef.current.set(ripple, animation);
     },
+    [],
   );
 
-  const handlePointerMove = useEffectEvent(
+  const handlePointerMove = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       if (event.pointerType === "touch" || reducedMotionRef.current) {
         return;
@@ -592,9 +593,10 @@ function useWaterMotion() {
         triggerRipple(event.clientX, event.clientY, energy, false);
       }
     },
+    [triggerRipple],
   );
 
-  const handlePointerDown = useEffectEvent(
+  const handlePointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       if (event.pointerType === "touch" || reducedMotionRef.current) {
         return;
@@ -606,11 +608,12 @@ function useWaterMotion() {
       );
       triggerRipple(event.clientX, event.clientY, Math.max(0.65, energy), true);
     },
+    [triggerRipple],
   );
 
-  const handlePointerLeave = useEffectEvent(() => {
+  const handlePointerLeave = useCallback(() => {
     settleWater();
-  });
+  }, [settleWater]);
 
   return {
     handlePointerDown,
@@ -1177,19 +1180,20 @@ function Dashboard({ locale }: Readonly<{ locale: Locale }>) {
     [githubMetrics],
   );
 
-  const selectedRouletteRepo = rouletteRepos[rouletteIndex] ?? null;
-
-  useEffect(() => {
-    setRouletteIndex(0);
-  }, [githubMetrics]);
+  const selectedRouletteRepo =
+    rouletteRepos[rouletteIndex] ?? rouletteRepos[0] ?? null;
 
   const freshnessData = useMemo(() => {
     const repos = githubMetrics?.topRepositories ?? [];
+    const fetchedAtTime = githubMetrics
+      ? new Date(githubMetrics.profile.fetchedAt).getTime()
+      : 0;
+
     return repos.slice(0, 4).map((repo) => {
       const days = Math.max(
         1,
         Math.round(
-          (Date.now() - new Date(repo.updatedAt).getTime()) /
+          (fetchedAtTime - new Date(repo.updatedAt).getTime()) /
             (1000 * 60 * 60 * 24),
         ),
       );
@@ -2170,28 +2174,30 @@ function OwnerAccessGate({ locale }: Readonly<{ locale: Locale }>) {
 
 function SyncKit({ locale }: Readonly<{ locale: Locale }>) {
   const [payload, setPayload] = useState<ProfileSyncPayload | null>(null);
-  const [observed, setObserved] = useState<ObservedProfileState>({
-    githubBio: "",
-    githubLocation: "",
-    linkedinHeadline: "",
-    linkedinLocation: "",
-    linkedinCompany: "",
-  });
+  const [observed, setObserved] = useState<ObservedProfileState>(() => {
+    const fallback: ObservedProfileState = {
+      githubBio: "",
+      githubLocation: "",
+      linkedinHeadline: "",
+      linkedinLocation: "",
+      linkedinCompany: "",
+    };
 
-  useEffect(() => {
     const raw = localStorage.getItem(observedProfileStorageKey);
-    if (!raw) return;
+    if (!raw) {
+      return fallback;
+    }
 
     try {
       const parsed = JSON.parse(raw) as Partial<ObservedProfileState>;
-      setObserved((previous) => ({
-        ...previous,
+      return {
+        ...fallback,
         ...parsed,
-      }));
+      };
     } catch {
-      // Ignore malformed local snapshot and keep defaults.
+      return fallback;
     }
-  }, []);
+  });
 
   useEffect(() => {
     let isMounted = true;
