@@ -485,20 +485,10 @@ function ScrollReveal({ children }: Readonly<{ children: ReactNode }>) {
   return <>{children}</>;
 }
 
-const windCardSelector =
-  ".glow-card, .spotlight-card, .metric-card, .repo-card, .kpi-card, .hero-aside";
-
 function useWaterMotion() {
-  const shellRef = useRef<HTMLDivElement | null>(null);
   const rippleRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const rippleIndexRef = useRef(0);
   const rippleAnimationsRef = useRef(new Map<HTMLElement, Animation>());
-  const windCardAnimationsRef = useRef(new Map<HTMLElement, Animation>());
-  const settleTimeoutRef = useRef<number | null>(null);
-  const accumulatedMotionRef = useRef(0);
-  const activeUntilRef = useRef(0);
-  const lastEnergyRef = useRef(0);
-  const lastWindTriggerRef = useRef(0);
   const lastRippleTriggerRef = useRef(0);
   const reducedMotionRef = useRef(false);
 
@@ -520,12 +510,6 @@ function useWaterMotion() {
 
     return () => {
       mediaQuery.removeEventListener?.("change", syncPreference);
-
-      if (settleTimeoutRef.current !== null) {
-        globalThis.clearTimeout(settleTimeoutRef.current);
-      }
-
-      windCardAnimationsRef.current.forEach((animation) => animation.cancel());
       rippleAnimationsRef.current.forEach((animation) => animation.cancel());
     };
   }, []);
@@ -538,15 +522,7 @@ function useWaterMotion() {
   );
 
   const settleWater = useEffectEvent(() => {
-    const shell = shellRef.current;
-
-    if (!shell) {
-      return;
-    }
-
-    shell.style.setProperty("--water-drift-x", "0px");
-    shell.style.setProperty("--water-drift-y", "0px");
-    shell.style.setProperty("--water-energy", "0");
+    lastRippleTriggerRef.current = 0;
   });
 
   const triggerRipple = useEffectEvent(
@@ -599,123 +575,11 @@ function useWaterMotion() {
     },
   );
 
-  const animateWindCards = useEffectEvent(
-    (
-      clientX: number,
-      clientY: number,
-      movementX: number,
-      movementY: number,
-      force: boolean,
-    ) => {
-      const shell = shellRef.current;
-
-      if (!shell || reducedMotionRef.current) {
-        return;
-      }
-
-      const now = globalThis.performance.now();
-      const rect = shell.getBoundingClientRect();
-      const normalizedX = (clientX - rect.left) / rect.width - 0.5;
-      const normalizedY = (clientY - rect.top) / rect.height - 0.5;
-      const kineticEnergy = Math.min(
-        1,
-        Math.hypot(normalizedX, normalizedY) * 1.7 +
-          (Math.abs(movementX) + Math.abs(movementY)) / 28,
-      );
-
-      shell.style.setProperty(
-        "--water-drift-x",
-        `${(normalizedX * (16 + kineticEnergy * 8)).toFixed(2)}px`,
-      );
-      shell.style.setProperty(
-        "--water-drift-y",
-        `${(normalizedY * (10 + kineticEnergy * 7)).toFixed(2)}px`,
-      );
-      shell.style.setProperty("--water-energy", kineticEnergy.toFixed(3));
-
-      const minimumCooldown = now - lastWindTriggerRef.current < 288;
-      const inActiveCycle = now < activeUntilRef.current;
-      const strongerGust = kineticEnergy > lastEnergyRef.current * 1.22;
-
-      if (
-        !force &&
-        ((minimumCooldown && kineticEnergy < 0.86) ||
-          (inActiveCycle && !strongerGust))
-      ) {
-        return;
-      }
-
-      lastWindTriggerRef.current = now;
-      lastEnergyRef.current = kineticEnergy;
-
-      const windX = normalizedX * (22 + kineticEnergy * 14);
-      const windY = normalizedY * (12 + kineticEnergy * 9);
-      const windTilt = normalizedX * (3.8 + kineticEnergy * 3.1);
-      const windCards = shell.querySelectorAll<HTMLElement>(windCardSelector);
-
-      windCards.forEach((element, index) => {
-        windCardAnimationsRef.current.get(element)?.cancel();
-
-        const damping = Math.max(0.46, 1 - index * 0.07);
-        const animation = element.animate(
-          [
-            { transform: "translate3d(0, 0, 0) rotate(0deg)" },
-            {
-              offset: 0.28,
-              transform: `translate3d(${(windX * damping).toFixed(2)}px, ${(windY * 0.42 * damping).toFixed(2)}px, 0) rotate(${(windTilt * damping).toFixed(2)}deg)`,
-            },
-            {
-              offset: 0.62,
-              transform: `translate3d(${(-windX * 0.55 * damping).toFixed(2)}px, ${(-windY * 0.16 * damping).toFixed(2)}px, 0) rotate(${(-windTilt * 0.48 * damping).toFixed(2)}deg)`,
-            },
-            { transform: "translate3d(0, 0, 0) rotate(0deg)" },
-          ],
-          {
-            duration: 1200 + index * 35 + kineticEnergy * 240,
-            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-            fill: "both",
-          },
-        );
-
-        windCardAnimationsRef.current.set(element, animation);
-      });
-
-      if (settleTimeoutRef.current !== null) {
-        globalThis.clearTimeout(settleTimeoutRef.current);
-      }
-
-      settleTimeoutRef.current = globalThis.setTimeout(() => {
-        settleWater();
-      }, 1420);
-
-      activeUntilRef.current = now + 1200 + kineticEnergy * 380;
-    },
-  );
-
   const handlePointerMove = useEffectEvent(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (event.pointerType === "touch") {
+      if (event.pointerType === "touch" || reducedMotionRef.current) {
         return;
       }
-
-      accumulatedMotionRef.current += Math.hypot(
-        event.movementX,
-        event.movementY,
-      );
-
-      if (accumulatedMotionRef.current < 15) {
-        return;
-      }
-
-      accumulatedMotionRef.current = 0;
-
-      animateWindCards(
-        event.clientX,
-        event.clientY,
-        event.movementX,
-        event.movementY,
-        false,
-      );
 
       const now = globalThis.performance.now();
 
@@ -732,17 +596,9 @@ function useWaterMotion() {
 
   const handlePointerDown = useEffectEvent(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (event.pointerType === "touch") {
+      if (event.pointerType === "touch" || reducedMotionRef.current) {
         return;
       }
-
-      animateWindCards(
-        event.clientX,
-        event.clientY,
-        event.movementX,
-        event.movementY,
-        true,
-      );
 
       const energy = Math.min(
         1,
@@ -753,7 +609,6 @@ function useWaterMotion() {
   );
 
   const handlePointerLeave = useEffectEvent(() => {
-    accumulatedMotionRef.current = 0;
     settleWater();
   });
 
@@ -762,7 +617,6 @@ function useWaterMotion() {
     handlePointerLeave,
     handlePointerMove,
     setRippleRef,
-    shellRef,
   };
 }
 
@@ -781,7 +635,6 @@ function Layout({
     handlePointerLeave,
     handlePointerMove,
     setRippleRef,
-    shellRef,
   } = useWaterMotion();
 
   useEffect(() => {
@@ -810,7 +663,6 @@ function Layout({
 
   return (
     <div
-      ref={shellRef}
       className="hub-shell mx-auto min-h-screen w-full max-w-7xl px-4 py-6 md:px-8"
       onPointerDown={handlePointerDown}
       onPointerLeave={handlePointerLeave}

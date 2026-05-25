@@ -192,9 +192,6 @@
   .hub-shell {
     position: relative;
     isolation: isolate;
-    --water-drift-x: 0px;
-    --water-drift-y: 0px;
-    --water-energy: 0;
   }
 
   .hub-atmosphere {
@@ -203,12 +200,6 @@
     pointer-events: none;
     z-index: -1;
     overflow: hidden;
-    transform: translate3d(
-      calc(var(--water-drift-x) * 0.12),
-      calc(var(--water-drift-y) * 0.1),
-      0
-    );
-    transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .hub-atmosphere::before {
@@ -272,17 +263,6 @@
     position: sticky;
     top: 0.75rem;
     z-index: 40;
-  }
-
-  .hub-header,
-  .hero-panel,
-  .glow-card,
-  .spotlight-card,
-  .metric-card,
-  .repo-card,
-  .kpi-card {
-    transform-origin: center center;
-    will-change: transform;
   }
 
   .hub-nav-shell {
