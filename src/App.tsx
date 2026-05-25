@@ -20,10 +20,8 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
-  type PointerEvent as ReactPointerEvent,
 } from "react";
 import {
   BrowserRouter,
@@ -34,6 +32,10 @@ import {
   useLocation,
 } from "react-router-dom";
 
+import { GlowCard } from "./components/common/GlowCard";
+import { MarkdownPreview } from "./components/common/MarkdownPreview";
+import { PageCard } from "./components/common/PageCard";
+import { ScrollReveal } from "./components/common/ScrollReveal";
 import { Button } from "./components/ui/button";
 import {
   baseUrl,
@@ -57,6 +59,7 @@ import {
   type ObservedProfileState,
   type ProfileSyncPayload,
 } from "./content/profileContent";
+import { useWaterMotion } from "./hooks/useWaterMotion";
 import {
   captureTrafficSource,
   getAnalyticsSummary,
@@ -75,53 +78,6 @@ import {
 
 function hasOwnerAccess() {
   return localStorage.getItem(ownerAccessStorageKey) === "true";
-}
-
-function MarkdownPreview({ markdown }: Readonly<{ markdown: string }>) {
-  const blocks = markdown
-    .split("\n\n")
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  return (
-    <div className="markdown-preview space-y-4 text-sm text-muted-foreground">
-      {blocks.map((block, index) => {
-        if (block.startsWith("### ")) {
-          return (
-            <h4
-              key={`${block}-${index}`}
-              className="text-base font-semibold text-foreground"
-            >
-              {block.replace("### ", "")}
-            </h4>
-          );
-        }
-
-        if (block.startsWith("## ")) {
-          return (
-            <h3
-              key={`${block}-${index}`}
-              className="text-lg font-semibold text-foreground"
-            >
-              {block.replace("## ", "")}
-            </h3>
-          );
-        }
-
-        if (block.split("\n").every((line) => line.startsWith("- "))) {
-          return (
-            <ul key={`${block}-${index}`} className="list-disc space-y-1 pl-5">
-              {block.split("\n").map((line) => (
-                <li key={line}>{line.replace("- ", "")}</li>
-              ))}
-            </ul>
-          );
-        }
-
-        return <p key={`${block}-${index}`}>{block}</p>;
-      })}
-    </div>
-  );
 }
 
 function getDiffStatus(expected: string, observedValue: string) {
@@ -256,209 +212,6 @@ function ConsentBanner() {
       </div>
     </div>
   );
-}
-
-// Mouse-tracking spotlight card
-function GlowCard({
-  children,
-  className = "",
-}: Readonly<{ children: ReactNode; className?: string }>) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    ref.current.style.setProperty("--gx", `${e.clientX - rect.left}px`);
-    ref.current.style.setProperty("--gy", `${e.clientY - rect.top}px`);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    ref.current?.style.setProperty("--gx", "-9999px");
-    ref.current?.style.setProperty("--gy", "-9999px");
-  }, []);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    element.addEventListener("mousemove", handleMouseMove);
-    element.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      element.removeEventListener("mousemove", handleMouseMove);
-      element.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, [handleMouseLeave, handleMouseMove]);
-
-  return (
-    <div ref={ref} className={`glow-card ${className}`}>
-      {children}
-    </div>
-  );
-}
-
-// IntersectionObserver scroll reveal
-function ScrollReveal({ children }: Readonly<{ children: ReactNode }>) {
-  const location = useLocation();
-
-  useEffect(() => {
-    const els = document.querySelectorAll("[data-reveal]");
-    const io = new IntersectionObserver(
-      (entries, observer) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          entry.target.classList.add("revealed");
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold: 0.08, rootMargin: "0px 0px -30px 0px" },
-    );
-
-    els.forEach((el) => io.observe(el));
-
-    return () => io.disconnect();
-  }, [location.pathname]);
-
-  return <>{children}</>;
-}
-
-function useWaterMotion() {
-  const rippleRefs = useRef<Array<HTMLSpanElement | null>>([]);
-  const rippleIndexRef = useRef(0);
-  const rippleAnimationsRef = useRef(new Map<HTMLElement, Animation>());
-  const lastRippleTriggerRef = useRef(0);
-  const reducedMotionRef = useRef(false);
-
-  useEffect(() => {
-    const mediaQuery = globalThis.matchMedia?.(
-      "(prefers-reduced-motion: reduce)",
-    );
-
-    if (!mediaQuery) {
-      return () => undefined;
-    }
-
-    const syncPreference = () => {
-      reducedMotionRef.current = mediaQuery.matches;
-    };
-
-    syncPreference();
-    mediaQuery.addEventListener?.("change", syncPreference);
-    const rippleAnimations = rippleAnimationsRef.current;
-
-    return () => {
-      mediaQuery.removeEventListener?.("change", syncPreference);
-      rippleAnimations.forEach((animation) => animation.cancel());
-    };
-  }, []);
-
-  const setRippleRef = useCallback(
-    (index: number) => (node: HTMLSpanElement | null) => {
-      rippleRefs.current[index] = node;
-    },
-    [],
-  );
-
-  const settleWater = useCallback(() => {
-    lastRippleTriggerRef.current = 0;
-  }, []);
-
-  const triggerRipple = useCallback(
-    (clientX: number, clientY: number, energy: number, strong: boolean) => {
-      const ripple =
-        rippleRefs.current[rippleIndexRef.current % rippleRefs.current.length];
-
-      if (!ripple) {
-        return;
-      }
-
-      rippleIndexRef.current += 1;
-
-      const size = strong ? 980 + energy * 640 : 760 + energy * 420;
-      ripple.style.left = `${clientX}px`;
-      ripple.style.top = `${clientY}px`;
-      ripple.style.setProperty("--ripple-size", `${size.toFixed(0)}px`);
-
-      rippleAnimationsRef.current.get(ripple)?.cancel();
-
-      const animation = ripple.animate(
-        [
-          {
-            opacity: strong ? 0.52 : 0.36,
-            transform: "translate(-50%, -50%) scale(0.12)",
-          },
-          {
-            offset: 0.44,
-            opacity: strong ? 0.34 : 0.22,
-            transform: "translate(-50%, -50%) scale(0.9)",
-          },
-          {
-            offset: 0.76,
-            opacity: strong ? 0.16 : 0.1,
-            transform: "translate(-50%, -50%) scale(1.34)",
-          },
-          {
-            opacity: 0,
-            transform: "translate(-50%, -50%) scale(1.84)",
-          },
-        ],
-        {
-          duration: strong ? 2900 : 2300,
-          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
-          fill: "both",
-        },
-      );
-
-      rippleAnimationsRef.current.set(ripple, animation);
-    },
-    [],
-  );
-
-  const handlePointerMove = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (event.pointerType === "touch" || reducedMotionRef.current) {
-        return;
-      }
-
-      const now = globalThis.performance.now();
-
-      if (now - lastRippleTriggerRef.current >= 224) {
-        lastRippleTriggerRef.current = now;
-        const energy = Math.min(
-          1,
-          Math.hypot(event.movementX, event.movementY) / 22,
-        );
-        triggerRipple(event.clientX, event.clientY, energy, false);
-      }
-    },
-    [triggerRipple],
-  );
-
-  const handlePointerDown = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (event.pointerType === "touch" || reducedMotionRef.current) {
-        return;
-      }
-
-      const energy = Math.min(
-        1,
-        Math.hypot(event.movementX, event.movementY) / 18,
-      );
-      triggerRipple(event.clientX, event.clientY, Math.max(0.65, energy), true);
-    },
-    [triggerRipple],
-  );
-
-  const handlePointerLeave = useCallback(() => {
-    settleWater();
-  }, [settleWater]);
-
-  return {
-    handlePointerDown,
-    handlePointerLeave,
-    handlePointerMove,
-    setRippleRef,
-  };
 }
 
 function Layout({
@@ -609,26 +362,6 @@ function Layout({
       </main>
       <ConsentBanner />
     </div>
-  );
-}
-
-function PageCard({
-  title,
-  description,
-  icon,
-}: Readonly<{
-  title: string;
-  description: string;
-  icon: ReactNode;
-}>) {
-  return (
-    <GlowCard className="rounded-3xl border p-6">
-      <div className="mb-4 inline-flex rounded-2xl border border-border bg-background/90 p-2.5 text-primary">
-        {icon}
-      </div>
-      <h2 className="text-2xl font-semibold">{title}</h2>
-      <p className="mt-3 text-muted-foreground">{description}</p>
-    </GlowCard>
   );
 }
 
