@@ -1,0 +1,116 @@
+import { Download, ExternalLink } from "lucide-react";
+
+import { MarkdownPreview } from "../components/common/MarkdownPreview";
+import { Button } from "../components/ui/button";
+import {
+  cvSummaryEnMarkdown,
+  fitRolesEn,
+  profile,
+  type TrackClickHandler,
+  volunteerHighlightsEn,
+} from "../content/profileContent";
+
+export function CvEn({
+  onTrackClick,
+}: Readonly<{
+  onTrackClick: TrackClickHandler;
+}>) {
+  return (
+    <section className="grid gap-4 md:grid-cols-5">
+      <article className="md:col-span-3 rounded-2xl border border-border bg-card p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          Resume EN
+        </p>
+        <h2 className="mt-2 text-3xl">Senior .NET Software Engineer</h2>
+        <p className="mt-3 text-muted-foreground">
+          Senior software engineer focused on backend systems, platform
+          modernization and reliable delivery in high-complexity enterprise
+          contexts.
+        </p>
+        <div className="mt-5">
+          <div className="flex flex-wrap gap-2">
+            <Button asChild>
+              <a
+                href={profile.linkedin}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => {
+                  onTrackClick("/cv-en", "open-linkedin");
+                }}
+              >
+                LinkedIn <ExternalLink className="ml-1 h-4 w-4" />
+              </a>
+            </Button>
+            <Button asChild variant="outline">
+              <a
+                href={profile.github}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => {
+                  onTrackClick("/cv-en", "open-github");
+                }}
+              >
+                GitHub <ExternalLink className="ml-1 h-4 w-4" />
+              </a>
+            </Button>
+            <Button asChild>
+              <a
+                href={profile.cvEnDownload}
+                download
+                onClick={() => {
+                  onTrackClick("/cv-en", "download-cv-en");
+                }}
+              >
+                Download PDF EN <Download className="ml-1 h-4 w-4" />
+              </a>
+            </Button>
+          </div>
+        </div>
+      </article>
+      <article className="md:col-span-2 rounded-2xl border border-border bg-card p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          Target roles
+        </p>
+        <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+          {fitRolesEn.map((role) => (
+            <li
+              key={role}
+              className="rounded-lg border border-border/70 bg-background/60 px-3 py-2"
+            >
+              {role}
+            </li>
+          ))}
+        </ul>
+      </article>
+
+      <article className="md:col-span-5 rounded-2xl border border-border bg-card p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          Behavior and leadership
+        </p>
+        <h3 className="mt-2 text-2xl font-semibold">Volunteer experience</h3>
+        <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+          {volunteerHighlightsEn.map((highlight) => (
+            <li
+              key={highlight}
+              className="rounded-lg border border-border/70 bg-background/60 px-3 py-2"
+            >
+              {highlight}
+            </li>
+          ))}
+        </ul>
+      </article>
+
+      <article className="md:col-span-5 rounded-2xl border border-border bg-card p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          Markdown Summary
+        </p>
+        <h3 className="mt-2 text-2xl font-semibold">
+          Detailed CV overview (EN)
+        </h3>
+        <div className="mt-4 rounded-xl border border-border/70 bg-background/55 p-4">
+          <MarkdownPreview markdown={cvSummaryEnMarkdown} />
+        </div>
+      </article>
+    </section>
+  );
+}
