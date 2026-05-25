@@ -13,6 +13,8 @@ const baseNavigation: readonly NavigationItem[] = [
 
 export type Locale = "pt-BR" | "en";
 
+export type TrackClickHandler = (path: string, label: string) => void;
+
 export const localeStorageKey = "hub-locale-v1";
 
 export const baseUrl = import.meta.env.BASE_URL;
